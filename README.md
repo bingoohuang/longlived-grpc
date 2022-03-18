@@ -124,6 +124,9 @@ All of the code used here is available in the following GitHub repository: https
 
 For the sake of keeping everything simple and focus on how to utilize gRPC – we are going to create a basic application which consists of a single server and multiple clients. I chose to work with a arbitrary number of 10 clients, but as you will see later this scales easily:
 
+![image](https://user-images.githubusercontent.com/1940588/158938052-a162fe15-72dd-4bce-9382-71b76666f380.png)
+
+
 gRPC client server app example
 
 ### Application flow
@@ -135,6 +138,9 @@ Below is the general flow I had in mind while building this application. Note th
 1. The server sends data periodically to the client
 
 gRPC application flow
+
+![image](https://user-images.githubusercontent.com/1940588/158938064-8e03f12a-923e-412d-b487-9e0468da4e37.png)
+
 
 A few notes:
 
