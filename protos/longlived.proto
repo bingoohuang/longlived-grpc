@@ -6,6 +6,7 @@ package protos;
 service Longlived {
   rpc Subscribe(Request) returns (stream Response) {}
   rpc Unsubscribe(Request) returns (Response) {}
+  rpc NotifyReceived(Request) returns (Response) {}
 }
 
 message Request {

@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"longlived-gprc/protos"
+	_ "longlived-gprc/resolver"
 	"strings"
 	"sync"
 	"time"
@@ -11,59 +13,70 @@ import (
 	"google.golang.org/grpc"
 )
 
-func startClient(address string) {
-	// Create multiple clients and start receiving data
-	var wg sync.WaitGroup
+type Clients struct {
+	wg     sync.WaitGroup
+	cancel context.CancelFunc
+	conn   *grpc.ClientConn
+}
+
+func (c *Clients) Stop() {
+	c.cancel()
+	c.wg.Wait()
+	c.conn.Close()
+}
+
+func (c *Clients) AddWg() {
+	c.wg.Add(1)
+}
+
+func startClients(address string) *Clients {
+	ctx, cancel := context.WithCancel(context.Background())
+	conn, err := mkConnection(ctx, address)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	clients := &Clients{cancel: cancel, conn: conn}
 
 	for i := 1; i <= 10; i++ {
-		wg.Add(1)
-		client, err := mkLonglivedClient(address, int32(i))
+		clients.AddWg()
+		client, err := mkLonglivedClient(ctx, conn, address, int32(i))
 		if err != nil {
 			log.Fatal(err)
 		}
 		// Dispatch client goroutine
-		go client.start(&wg)
-		time.Sleep(time.Second * 2)
+		go client.start(&clients.wg)
 	}
 
-	wg.Wait()
+	return clients
 }
 
 // longlivedClient holds the long lived gRPC client fields
 type longlivedClient struct {
 	client protos.LonglivedClient // client is the long lived gRPC client
-	conn   *grpc.ClientConn       // conn is the client gRPC connection
 	id     int32                  // id is the client ID used for subscribing
+	ctx    context.Context
 }
 
 // mkLonglivedClient creates a new client instance
-func mkLonglivedClient(address string, id int32) (*longlivedClient, error) {
-	conn, err := mkConnection(address)
-	if err != nil {
-		return nil, err
-	}
+func mkLonglivedClient(ctx context.Context, conn *grpc.ClientConn, address string, id int32) (*longlivedClient, error) {
 	return &longlivedClient{
 		client: protos.NewLonglivedClient(conn),
-		conn:   conn,
 		id:     id,
+		ctx:    ctx,
 	}, nil
-}
-
-// close is not used but is here as an example of how to close the gRPC client connection
-func (c *longlivedClient) Close() error {
-	return c.conn.Close()
 }
 
 // subscribe subscribes to messages from the gRPC server
 func (c *longlivedClient) Subscribe() (protos.Longlived_SubscribeClient, error) {
 	log.Printf("Subscribing client ID %d", c.id)
-	return c.client.Subscribe(context.Background(), &protos.Request{Id: c.id})
+	return c.client.Subscribe(c.ctx, &protos.Request{Id: c.id})
 }
 
 // unsubscribe unsubscribes to messages from the gRPC server
 func (c *longlivedClient) Unsubscribe() error {
 	log.Printf("Unsubscribing client ID %d", c.id)
-	_, err := c.client.Unsubscribe(context.Background(), &protos.Request{Id: c.id})
+	_, err := c.client.Unsubscribe(c.ctx, &protos.Request{Id: c.id})
 	return err
 }
 
@@ -73,7 +86,8 @@ func (c *longlivedClient) start(wg *sync.WaitGroup) {
 	var err error
 	// stream is the client side of the RPC stream
 	var stream protos.Longlived_SubscribeClient
-	for {
+
+	for c.ctx.Err() == nil {
 		if stream == nil {
 			if stream, err = c.Subscribe(); err != nil {
 				log.Printf("Failed to subscribe: %v", err)
@@ -81,28 +95,45 @@ func (c *longlivedClient) start(wg *sync.WaitGroup) {
 				continue // Retry on failure
 			}
 		}
+
 		response, err := stream.Recv()
 		if err != nil {
+			if err == io.EOF {
+				log.Printf("stream is finished: %v", err)
+				break
+			}
+
 			log.Printf("Failed to receive message: %v", err)
 			// Clearing the stream will force the client to resubscribe on next iteration
 			stream = nil
 			c.sleep()
 			continue // Retry on failure
 		}
+
+		c.client.NotifyReceived(c.ctx, &protos.Request{Id: c.id})
 		log.Printf("Client ID %d got response: %q", c.id, response.Data)
 	}
+
+	log.Printf("Client ID %d exited", c.id)
 }
 
 // sleep is used to give the server time to unsubscribe the client and reset the stream
 func (c *longlivedClient) sleep() {
-	time.Sleep(time.Second * 5)
+	select {
+	case <-c.ctx.Done():
+	case <-time.After(5 * time.Second):
+	}
 }
 
-func mkConnection(address string) (*grpc.ClientConn, error) {
+func mkConnection(ctx context.Context, address string) (*grpc.ClientConn, error) {
 	if address == ":" || address == "" {
 		address = "127.0.0.1:7070"
 	} else if strings.HasPrefix(address, ":") {
 		address = "127.0.0.1" + address
 	}
-	return grpc.Dial(address, []grpc.DialOption{grpc.WithInsecure(), grpc.WithBlock()}...)
+	return grpc.DialContext(ctx, address,
+		grpc.WithInsecure(),
+		grpc.WithBlock(),
+		grpc.WithBalancerName("round_robin"),
+	)
 }

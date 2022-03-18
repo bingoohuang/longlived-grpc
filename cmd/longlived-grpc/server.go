@@ -7,6 +7,8 @@ import (
 	"log"
 	"longlived-gprc/protos"
 	"net"
+	"os"
+	"os/signal"
 	"sync"
 	"time"
 
@@ -18,14 +20,25 @@ func main() {
 	pClient := flag.Bool("client", false, "start as Grpc client")
 	flag.Parse()
 
+	var stopper Stopper
 	if *pClient {
-		startClient(*pAddr)
+		stopper = startClients(*pAddr)
 	} else {
-		startServer(*pAddr)
+		stopper = startServer(*pAddr)
 	}
+
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, os.Kill)
+	log.Printf("signal %v received", <-c)
+	stopper.Stop()
+	log.Print("exit")
 }
 
-func startServer(address string) {
+type Stopper interface {
+	Stop()
+}
+
+func startServer(address string) *grpc.Server {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatalf("listen on %s failed: %v", address, err)
@@ -42,10 +55,14 @@ func startServer(address string) {
 
 	log.Printf("Starting server on address %s", lis.Addr().String())
 
-	// Start listening
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to listen: %v", err)
-	}
+	go func() {
+		// Start listening
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Fatalf("failed to listen: %v", err)
+		}
+	}()
+
+	return grpcServer
 }
 
 type longlivedServer struct {
@@ -79,6 +96,12 @@ func (s *longlivedServer) Subscribe(request *protos.Request, stream protos.Longl
 			return nil
 		}
 	}
+}
+
+// NotifyReceived handles a NotifyReceived request from a client
+func (s *longlivedServer) NotifyReceived(ctx context.Context, request *protos.Request) (*protos.Response, error) {
+	log.Printf("NotifyReceived: %d", request.Id)
+	return &protos.Response{}, nil
 }
 
 // Unsubscribe handles a unsubscribe request from a client
