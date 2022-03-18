@@ -9,6 +9,9 @@ This repository holds a minimalistic example of a gRPC long lived streaming appl
 
 1. [gRPC客户端的那些事儿](https://tonybai.com/2021/09/17/those-things-about-grpc-client/)
 2. [blog grpc-long-lived-streaming](https://dev.bitolog.com/grpc-long-lived-streaming/)
+3. [gRPC is easy to misconfigure](https://www.evanjones.ca/grpc-is-tricky.html)
+   - Client keepalive is dangerous: do not use it
+   - Servers cannot return errors larger than 7 kiB
 
 gRPC支持四种通信模式
 
