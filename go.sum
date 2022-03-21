@@ -37,10 +37,13 @@ github.com/beorn7/perks v1.0.1/go.mod h1:G2ZrVWU2WbWT9wwq4/hrbKbnv/1ERSJQ0ibhJ6r
 github.com/bgentry/speakeasy v0.1.0/go.mod h1:+zsyZBPWlz7T6j88CTgSN5bM796AkVf0kBD4zp0CCIs=
 github.com/bingoohuang/gg v0.0.0-20220310062345-05ccfa3a9637 h1:rOluwfZ63pIGHyHIFfezftkJw5fc2+TugeYxSivi1OY=
 github.com/bingoohuang/gg v0.0.0-20220310062345-05ccfa3a9637/go.mod h1:tltYEITxWTTXTTAqJNBK62x6Eg1iThhAnez8CxcQxQo=
-github.com/bingoohuang/golog v0.0.0-20211112131923-101b7e1b3d4c h1:vHfOVr/QXkfG9vpR+FD5tF87PhAkK3epGcMVxPbJlAM=
 github.com/bingoohuang/golog v0.0.0-20211112131923-101b7e1b3d4c/go.mod h1:atiVUeYe0Rsi80P0eDEF8lpf9qvt/w/qpil8PpNGYvw=
+github.com/bingoohuang/golog v0.0.0-20220128074652-9b69ca183cea h1:8igEWn33ivPNHJdzBBW+xd7ltPS+d/hf8CPQyNti/YU=
+github.com/bingoohuang/golog v0.0.0-20220128074652-9b69ca183cea/go.mod h1:qg423THrCJp6chlMyzCO3ThnzV+q5jIglxApmruij5g=
 github.com/bingoohuang/sariaf v0.0.0-20201222043148-21fd9703b115/go.mod h1:DSi1LVR76Ap189KzzA40C8pFSpRZHsy/n+kgK8ihfhs=
 github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
+github.com/bwmarrin/snowflake v0.3.0 h1:xm67bEhkKh6ij1790JB83OujPR5CzNe8QuQqAgISZN0=
+github.com/bwmarrin/snowflake v0.3.0/go.mod h1:NdZxfVWX+oR6y2K0o6qAYv6gIOP9rjG0/E9WsDpxqwE=
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
@@ -166,7 +169,6 @@ github.com/google/gofuzz v1.0.0/go.mod h1:dBl0BpW6vV/+mYPU4Po3pmUjxk6FQPldtuIdl/
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
 github.com/google/uuid v1.0.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/google/uuid v1.1.1/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
-github.com/google/uuid v1.1.2 h1:EVhdT+1Kseyi1/pUmXKaFxYsDNy9RQYkMWRH68J/W7Y=
 github.com/google/uuid v1.1.2/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gookit/color v1.5.0/go.mod h1:43aQb+Zerm/BWh2GnrgOQm7ffz7tvQXEKV6BFMl7wAo=
 github.com/gookit/goutil v0.4.4/go.mod h1:qlGVh0PI+WnWSjYnIocfz/7tkeogxL6+EDNP1mRe+7o=

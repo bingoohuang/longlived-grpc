@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/bingoohuang/gg v0.0.0-20220310062345-05ccfa3a9637
-	github.com/bingoohuang/golog v0.0.0-20211112131923-101b7e1b3d4c
+	github.com/bingoohuang/golog v0.0.0-20220128074652-9b69ca183cea
 	github.com/gin-gonic/gin v1.7.7
 	github.com/segmentio/ksuid v1.0.4
 	google.golang.org/grpc v1.45.0
@@ -12,12 +12,12 @@ require (
 )
 
 require (
+	github.com/bwmarrin/snowflake v0.3.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/uuid v1.1.2 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
