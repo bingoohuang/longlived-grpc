@@ -2,16 +2,15 @@
 
 https://github.com/omri86/longlived-grpc
 
-This repository holds a minimalistic example of a gRPC long lived streaming application.
-
+This repository holds a minimalistic example of a gRPC long-lived streaming application.
 
 ## Resources
 
 1. [gRPC客户端的那些事儿](https://tonybai.com/2021/09/17/those-things-about-grpc-client/)
 2. [blog grpc-long-lived-streaming](https://dev.bitolog.com/grpc-long-lived-streaming/)
 3. [gRPC is easy to misconfigure](https://www.evanjones.ca/grpc-is-tricky.html)
-   - Client keepalive is dangerous: do not use it
-   - Servers cannot return errors larger than 7 kiB
+    - Client keepalive is dangerous: do not use it
+    - Servers cannot return errors larger than 7 kiB
 
 gRPC支持四种通信模式
 
@@ -29,9 +28,9 @@ gRPC支持四种通信模式，它们是（以下四张图截自[《gRPC: Up and
 ## Instructions
 
 1. To compile the proto file, run `make protoc`
-2. To build, run `make build`
+2. To install, run `make install`
 
-Note that this was tested on protoc version: `libprotoc 3.17.3` 
+Note that this was tested on protoc version: `libprotoc 3.17.3`
 
 ## Running the server
 
@@ -113,3 +112,10 @@ $ longlived-grpc -client
 
 1. server: `goreman start`
 2. client: `longlived-grpc -client -addr "static::7071,:7072,:7073"`
+
+## grpc ui
+
+1. ensure env `GRPC_REFLECTION` has not the value as any of `0`, `off`, `no`
+2. install [grpcui](https://github.com/fullstorydev/grpcui)
+3. start the server: `longlived-grpc`
+4. start the grpcui: `grpcui -plaintext localhost:7070`

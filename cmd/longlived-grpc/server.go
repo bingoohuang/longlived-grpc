@@ -4,11 +4,13 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"google.golang.org/grpc/reflection"
 	"log"
 	"longlived-gprc/protos"
 	"net"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"time"
 
@@ -52,6 +54,9 @@ func startServer(address string) *grpc.Server {
 
 	// Register the server
 	protos.RegisterLonglivedServer(grpcServer, server)
+	if s := strings.ToLower(os.Getenv("GRPC_REFLECTION")); !(s == "0" || s == "off" || s == "no") {
+		reflection.Register(grpcServer)
+	}
 
 	log.Printf("Starting server on address %s", lis.Addr().String())
 
@@ -101,7 +106,7 @@ func (s *longlivedServer) Subscribe(request *protos.Request, stream protos.Longl
 // NotifyReceived handles a NotifyReceived request from a client
 func (s *longlivedServer) NotifyReceived(ctx context.Context, request *protos.Request) (*protos.Response, error) {
 	log.Printf("NotifyReceived: %d", request.Id)
-	return &protos.Response{}, nil
+	return &protos.Response{Data: fmt.Sprintf("NotifyReceived: %d", request.Id)}, nil
 }
 
 // Unsubscribe handles a unsubscribe request from a client

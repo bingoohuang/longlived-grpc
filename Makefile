@@ -1,4 +1,4 @@
 protoc:
 	protoc --go_out=plugins=grpc:. protos/*.proto
-build:
+install:
 	go install ./...
