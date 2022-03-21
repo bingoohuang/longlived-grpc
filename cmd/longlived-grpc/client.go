@@ -25,7 +25,9 @@ type Clients struct {
 func (c *Clients) Stop() {
 	c.cancel()
 	c.wg.Wait()
-	c.conn.Close()
+	if err := c.conn.Close(); err != nil {
+		log.Printf("close connection failed: %v", err)
+	}
 }
 
 func (c *Clients) AddWg() {
@@ -43,10 +45,8 @@ func startClients(address string) *Clients {
 
 	for i := 1; i <= 10; i++ {
 		clients.AddWg()
-		client, err := mkLonglivedClient(ctx, conn, int32(i))
-		if err != nil {
-			log.Fatal(err)
-		}
+		client := newLonglivedClient(ctx, conn, int32(i))
+
 		// Dispatch client goroutine
 		go client.start(&clients.wg)
 	}
@@ -61,22 +61,22 @@ type longlivedClient struct {
 	ctx    context.Context
 }
 
-// mkLonglivedClient creates a new client instance
-func mkLonglivedClient(ctx context.Context, conn *grpc.ClientConn, id int32) (*longlivedClient, error) {
+// newLonglivedClient creates a new client instance
+func newLonglivedClient(ctx context.Context, conn *grpc.ClientConn, id int32) *longlivedClient {
 	return &longlivedClient{
 		client: protos.NewLonglivedClient(conn),
 		id:     id,
 		ctx:    ctx,
-	}, nil
+	}
 }
 
-// Subscribe subscribes to messages from the gRPC server
+// Subscribe subscribes to message from the gRPC server
 func (c *longlivedClient) Subscribe() (protos.Longlived_SubscribeClient, error) {
 	log.Printf("Subscribing client ID %d", c.id)
 	return c.client.Subscribe(c.ctx, &protos.Request{Id: c.id})
 }
 
-// Unsubscribe unsubscribes to messages from the gRPC server
+// Unsubscribe unsubscribes to message from the gRPC server
 func (c *longlivedClient) Unsubscribe() error {
 	log.Printf("Unsubscribing client ID %d", c.id)
 	_, err := c.client.Unsubscribe(c.ctx, &protos.Request{Id: c.id})
@@ -113,7 +113,7 @@ func (c *longlivedClient) start(wg *sync.WaitGroup) {
 			continue // Retry on failure
 		}
 
-		c.client.NotifyReceived(c.ctx, &protos.Request{Id: c.id})
+		_, _ = c.client.NotifyReceived(c.ctx, &protos.Request{Id: c.id})
 		log.Printf("Client ID %d got response: %q", c.id, response.Data)
 	}
 
