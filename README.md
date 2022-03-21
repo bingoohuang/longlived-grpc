@@ -119,3 +119,94 @@ $ longlived-grpc -client
 2. install [grpcui](https://github.com/fullstorydev/grpcui)
 3. start the server: `longlived-grpc`
 4. start the grpcui: `grpcui -plaintext localhost:7070`
+
+## 
+
+1. ensure env `GRPC_CHANNELZ` has not the value as any of `0`, `off`, `no`
+2. install channelzcli `go install github.com/kazegusuri/channelzcli@latest`
+3. start longlived-grpc: `longlived-grpc`
+
+```sh
+$ gurl -pb -r :7080/client/start
+{"status":200,"message":"OK","data":{"clientID":"26gv4BBtGfMMqSdeGADwUrwzMUH"}}
+$ gurl -pb -r :7080/client/start
+{"status":200,"message":"OK","data":{"clientID":"26gv4GDw4ZrCNH2vKtKRw0bNTvv"}}
+$ channelzcli -k --addr localhost:7070 list channel
+ID	Name                                                                            	State	Channel	SubChannel	Calls	Success	Fail	LastCall
+2	127.0.0.1:7070                                                                  	READY	0      	1         	191   	188   	0     	639ms
+$ channelzcli -k --addr localhost:7070 list serversocket
+ID	ServerID	Name                                    	RemoteName          	Local               	Remote              	Started	Success	Fail	LastStream
+6	1       	127.0.0.1:49171 -> 127.0.0.1:7070       	<none>              	[127.0.0.1]:7070	[127.0.0.1]:49171	206   	203   	0     	411ms
+23	1       	[::1]:49657 -> [::1]:7070               	<none>              	[::1]:7070      	[::1]:49657     	4     	3     	0     	2ms
+$ gurl -pb -r :7080/client/start
+{"status":200,"message":"OK","data":{"clientID":"26gv7JBDIXPEp36BtGJNBRfsRKs"}}
+$ channelzcli -k --addr localhost:7070 list server
+ID	Name	LocalAddr	Calls	Success	Fail	LastCall
+1	<none>	[::]:7070   	8     	6     	0     	0ms
+$ channelzcli -k --addr localhost:7070 list serversocket
+ID	ServerID	Name                                    	RemoteName          	Local               	Remote              	Started	Success	Fail	LastStream
+6	1       	127.0.0.1:49661 -> 127.0.0.1:7070       	<none>              	[127.0.0.1]:7070	[127.0.0.1]:49661	10    	9     	0     	642ms
+8	1       	[::1]:49673 -> [::1]:7070               	<none>              	[::1]:7070      	[::1]:49673     	4     	3     	0     	1ms
+$ channelzcli -k --addr localhost:7070 list channel
+ID	Name                                                                            	State	Channel	SubChannel	Calls	Success	Fail	LastCall
+2	127.0.0.1:7070                                                                  	READY	0      	1         	24    	23    	0     	739ms
+$ channelzcli -k --addr localhost:7070 describe server 1
+ID: 	1
+Name:
+Calls:
+  Started:        	49
+  Succeeded:      	47
+  Failed:         	0
+  LastCallStarted:	2022-03-21 10:18:33.439509 +0000 UTC
+$ channelzcli -k --addr localhost:7070 describe channel 2
+ID:       	2
+Name:     	127.0.0.1:7070
+State:    	READY
+Target:   	127.0.0.1:7070
+Calls:
+  Started:    	60
+  Succeeded:  	59
+  Failed:     	0
+  LastCallStarted:	2022-03-21 10:18:52.151899 +0000 UTC
+Socket:   	<none>
+Channels:   	<none>
+Subchannels:
+  ID	Name	State	Start 	Succeeded	Failed
+  3		READY	60    	59      	0
+Trace:
+  NumEvents:	13
+  CreationTimestamp:	2022-03-21 10:17:50.107535 +0000 UTC
+  Events
+    Severity	Description                                                                     	Timestamp
+    INFO	Channel Created                                                                 	2022-03-21 10:17:50.107634 +0000 UTC
+    INFO	original dial target is: "127.0.0.1:7070"                                       	2022-03-21 10:17:50.107665 +0000 UTC
+    INFO	dial target "127.0.0.1:7070" parse failed: parse "127.0.0.1:7070": first path segment in URL cannot contain colon	2022-03-21 10:17:50.107688 +0000 UTC
+    INFO	fallback to scheme "passthrough"                                                	2022-03-21 10:17:50.10769 +0000 UTC
+    INFO	parsed dial target is: {Scheme:passthrough Authority: Endpoint:127.0.0.1:7070 URL:{Scheme:passthrough Opaque: User: Host: Path:/127.0.0.1:7070 RawPath: ForceQuery:false RawQuery: Fragment: RawFragment:}}	2022-03-21 10:17:50.107763 +0000 UTC
+    INFO	Channel authority set to "127.0.0.1:7070"                                       	2022-03-21 10:17:50.107768 +0000 UTC
+    INFO	ccResolverWrapper: sending update to cc: {[{127.0.0.1:7070  <nil> <nil> 0 <nil>}] <nil> <nil>}	2022-03-21 10:17:50.107791 +0000 UTC
+    INFO	Resolver state updated: {Addresses:[{Addr:127.0.0.1:7070 ServerName: Attributes:<nil> BalancerAttributes:<nil> Type:0 Metadata:<nil>}] ServiceConfig:<nil> Attributes:<nil>} (resolver returned new addresses)	2022-03-21 10:17:50.107801 +0000 UTC
+    INFO	ClientConn switching balancer to "round_robin"                                  	2022-03-21 10:17:50.107809 +0000 UTC
+    INFO	Channel switches to new LB policy "round_robin"                                 	2022-03-21 10:17:50.107812 +0000 UTC
+    INFO	Subchannel(id:3) created                                                        	2022-03-21 10:17:50.107866 +0000 UTC
+    INFO	Channel Connectivity change to CONNECTING                                       	2022-03-21 10:17:50.108088 +0000 UTC
+    INFO	Channel Connectivity change to READY                                            	2022-03-21 10:17:50.108585 +0000 UTC
+$ channelzcli -k --addr localhost:7070 describe serversocket 6
+ID:       	6
+Name:     	127.0.0.1:49661 -> 127.0.0.1:7070
+Local:    	[127.0.0.1]:7070
+Remote:   	[127.0.0.1]:49661
+Streams:
+  Started:    	90
+  Succeeded:  	89
+  Failed:     	0
+  LastCreated:	2022-03-21 10:19:22.172461 +0000 UTC
+Messages:
+  Sent:    	178
+  Recieved:  	90
+  LastSent:	2022-03-21 10:19:22.172537 +0000 UTC
+  LastReceived:	2022-03-21 10:19:22.172503 +0000 UTC
+Options:
+Security:
+  Model: none
+```
