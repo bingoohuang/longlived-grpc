@@ -3,10 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/segmentio/ksuid"
-	"google.golang.org/grpc/balancer/roundrobin"
-	"google.golang.org/grpc/credentials/insecure"
 	"io"
 	"log"
 	"longlived-gprc/protos"
@@ -14,6 +10,11 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/segmentio/ksuid"
+	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials/insecure"
 
 	"google.golang.org/grpc"
 )
@@ -194,7 +195,7 @@ func mkConnection(ctx context.Context, address string) (*grpc.ClientConn, error)
 	}
 
 	return grpc.DialContext(ctx, address,
-		//grpc.WithBlock(),
+		// grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
 	)

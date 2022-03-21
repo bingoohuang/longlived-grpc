@@ -2,13 +2,7 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/segmentio/ksuid"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/channelz/service"
-	"google.golang.org/grpc/reflection"
 	"log"
 	"longlived-gprc/protos"
 	"net"
@@ -18,6 +12,17 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/bingoohuang/golog/pkg/ginlogrus"
+
+	"github.com/bingoohuang/gg/pkg/ctl"
+	"github.com/bingoohuang/gg/pkg/fla9"
+	"github.com/bingoohuang/golog"
+	"github.com/gin-gonic/gin"
+	"github.com/segmentio/ksuid"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/channelz/service"
+	"google.golang.org/grpc/reflection"
 )
 
 type Stoppers struct {
@@ -73,17 +78,23 @@ func (s Stoppers) StopMode(mode Mode) (ids []string) {
 var stoppers Stoppers
 
 func main() {
-	pAddr := flag.String("addr", ":7070", "listen address for the Grpc server")
-	pMode := flag.String("mode", "both", "client/server/both")
-	flag.Parse()
+	pInit := fla9.Bool("init", false, "Initialize a ctl")
+	pVersion := fla9.Bool("version,v", false, "Print version")
+	pAddr := fla9.String("addr,a", ":7070", "listen address for the Grpc server")
+	pMode := fla9.String("mode,m", "both", "client/server/both")
+	fla9.Parse()
+
+	ctl.Config{Initing: *pInit, PrintVersion: *pVersion}.ProcessInit()
+
+	gin.SetMode(gin.ReleaseMode)
+	golog.Setup()
+	gr := gin.New()
+	gr.Use(ginlogrus.Logger(nil, true), gin.Recovery())
 
 	host, sport, err := net.SplitHostPort(*pAddr)
 	if err != nil {
 		log.Fatalf("parse host and port from argument addr, failed: %v", err)
 	}
-
-	gin.SetMode(gin.ReleaseMode)
-	gr := gin.Default()
 
 	port, _ := strconv.Atoi(sport)
 	port += 10

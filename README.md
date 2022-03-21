@@ -11,8 +11,9 @@ This repository holds a minimalistic example of a gRPC long-lived streaming appl
 3. [gRPC is easy to misconfigure](https://www.evanjones.ca/grpc-is-tricky.html)
     - Client keepalive is dangerous: do not use it
     - Servers cannot return errors larger than 7 kiB
+4. [gRPC-中使用-Channel](https://helloworlde.github.io/2021/01/04/gRPC-中使用-Channelz/)
 
-gRPC支持四种通信模式
+### gRPC支持四种通信模式
 
 gRPC支持四种通信模式，它们是（以下四张图截自[《gRPC: Up and Running》一书](https://book.douban.com/subject/34796013/）：
 
@@ -209,4 +210,131 @@ Messages:
 Options:
 Security:
   Model: none
+```
+
+### https://github.com/fullstorydev/grpcurl
+
+```sh
+$ grpcurl -plaintext localhost:7070 grpc.channelz.v1.Channelz/GetServers
+{
+  "server": [
+    {
+      "ref": {
+        "serverId": "1"
+      },
+      "data": {
+        "callsStarted": "39",
+        "callsSucceeded": "36",
+        "lastCallStartedTimestamp": "2022-03-21T10:30:53.291282Z"
+      },
+      "listenSocket": [
+        {
+          "socketId": "5",
+          "name": "[::]:7070"
+        }
+      ]
+    }
+  ],
+  "end": true
+}
+$ grpcurl -plaintext localhost:7070 grpc.channelz.v1.Channelz/GetTopChannels
+{
+  "channel": [
+    {
+      "ref": {
+        "channelId": "2",
+        "name": "127.0.0.1:7070"
+      },
+      "data": {
+        "state": {
+          "state": "READY"
+        },
+        "target": "127.0.0.1:7070",
+        "trace": {
+          "numEventsLogged": "13",
+          "creationTimestamp": "2022-03-21T10:30:10.666446Z",
+          "events": [
+            {
+              "description": "Channel Created",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666467Z"
+            },
+            {
+              "description": "original dial target is: \"127.0.0.1:7070\"",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666500Z"
+            },
+            {
+              "description": "dial target \"127.0.0.1:7070\" parse failed: parse \"127.0.0.1:7070\": first path segment in URL cannot contain colon",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666527Z"
+            },
+            {
+              "description": "fallback to scheme \"passthrough\"",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666529Z"
+            },
+            {
+              "description": "parsed dial target is: {Scheme:passthrough Authority: Endpoint:127.0.0.1:7070 URL:{Scheme:passthrough Opaque: User: Host: Path:/127.0.0.1:7070 RawPath: ForceQuery:false RawQuery: Fragment: RawFragment:}}",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666568Z"
+            },
+            {
+              "description": "Channel authority set to \"127.0.0.1:7070\"",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666573Z"
+            },
+            {
+              "description": "ccResolverWrapper: sending update to cc: {[{127.0.0.1:7070  \u003cnil\u003e \u003cnil\u003e 0 \u003cnil\u003e}] \u003cnil\u003e \u003cnil\u003e}",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666594Z"
+            },
+            {
+              "description": "Resolver state updated: {Addresses:[{Addr:127.0.0.1:7070 ServerName: Attributes:\u003cnil\u003e BalancerAttributes:\u003cnil\u003e Type:0 Metadata:\u003cnil\u003e}] ServiceConfig:\u003cnil\u003e Attributes:\u003cnil\u003e} (resolver returned new addresses)",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666604Z"
+            },
+            {
+              "description": "ClientConn switching balancer to \"round_robin\"",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666613Z"
+            },
+            {
+              "description": "Channel switches to new LB policy \"round_robin\"",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666615Z"
+            },
+            {
+              "description": "Subchannel(id:3) created",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666644Z",
+              "subchannelRef": {
+                "subchannelId": "3"
+              }
+            },
+            {
+              "description": "Channel Connectivity change to CONNECTING",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.666898Z"
+            },
+            {
+              "description": "Channel Connectivity change to READY",
+              "severity": "CT_INFO",
+              "timestamp": "2022-03-21T10:30:10.668611Z"
+            }
+          ]
+        },
+        "callsStarted": "53",
+        "callsSucceeded": "52",
+        "lastCallStartedTimestamp": "2022-03-21T10:31:08.702486Z"
+      },
+      "subchannelRef": [
+        {
+          "subchannelId": "3"
+        }
+      ]
+    }
+  ],
+  "end": true
+}
 ```
