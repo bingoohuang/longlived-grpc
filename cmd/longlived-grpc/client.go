@@ -56,17 +56,17 @@ func startClients(address string) *Clients {
 
 // longlivedClient holds the long-lived gRPC client fields
 type longlivedClient struct {
+	ctx    context.Context
 	client protos.LonglivedClient // client is the long-lived gRPC client
 	id     int32                  // id is the client ID used for subscribing
-	ctx    context.Context
 }
 
 // newLonglivedClient creates a new client instance
 func newLonglivedClient(ctx context.Context, conn *grpc.ClientConn, id int32) *longlivedClient {
 	return &longlivedClient{
+		ctx:    ctx,
 		client: protos.NewLonglivedClient(conn),
 		id:     id,
-		ctx:    ctx,
 	}
 }
 
@@ -113,8 +113,9 @@ func (c *longlivedClient) start(wg *sync.WaitGroup) {
 			continue // Retry on failure
 		}
 
-		_, _ = c.client.NotifyReceived(c.ctx, &protos.Request{Id: c.id})
 		log.Printf("Client ID %d got response: %q", c.id, response.Data)
+
+		_, _ = c.client.NotifyReceived(c.ctx, &protos.Request{Id: c.id})
 	}
 
 	log.Printf("Client ID %d exited", c.id)
