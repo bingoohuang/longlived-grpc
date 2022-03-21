@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"google.golang.org/grpc/balancer/roundrobin"
+	"google.golang.org/grpc/credentials/insecure"
 	"io"
 	"log"
 	"longlived-gprc/protos"
@@ -40,7 +43,7 @@ func startClients(address string) *Clients {
 
 	for i := 1; i <= 10; i++ {
 		clients.AddWg()
-		client, err := mkLonglivedClient(ctx, conn, address, int32(i))
+		client, err := mkLonglivedClient(ctx, conn, int32(i))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -51,15 +54,15 @@ func startClients(address string) *Clients {
 	return clients
 }
 
-// longlivedClient holds the long lived gRPC client fields
+// longlivedClient holds the long-lived gRPC client fields
 type longlivedClient struct {
-	client protos.LonglivedClient // client is the long lived gRPC client
+	client protos.LonglivedClient // client is the long-lived gRPC client
 	id     int32                  // id is the client ID used for subscribing
 	ctx    context.Context
 }
 
 // mkLonglivedClient creates a new client instance
-func mkLonglivedClient(ctx context.Context, conn *grpc.ClientConn, address string, id int32) (*longlivedClient, error) {
+func mkLonglivedClient(ctx context.Context, conn *grpc.ClientConn, id int32) (*longlivedClient, error) {
 	return &longlivedClient{
 		client: protos.NewLonglivedClient(conn),
 		id:     id,
@@ -67,13 +70,13 @@ func mkLonglivedClient(ctx context.Context, conn *grpc.ClientConn, address strin
 	}, nil
 }
 
-// subscribe subscribes to messages from the gRPC server
+// Subscribe subscribes to messages from the gRPC server
 func (c *longlivedClient) Subscribe() (protos.Longlived_SubscribeClient, error) {
 	log.Printf("Subscribing client ID %d", c.id)
 	return c.client.Subscribe(c.ctx, &protos.Request{Id: c.id})
 }
 
-// unsubscribe unsubscribes to messages from the gRPC server
+// Unsubscribe unsubscribes to messages from the gRPC server
 func (c *longlivedClient) Unsubscribe() error {
 	log.Printf("Unsubscribing client ID %d", c.id)
 	_, err := c.client.Unsubscribe(c.ctx, &protos.Request{Id: c.id})
@@ -131,9 +134,10 @@ func mkConnection(ctx context.Context, address string) (*grpc.ClientConn, error)
 	} else if strings.HasPrefix(address, ":") {
 		address = "127.0.0.1" + address
 	}
+
 	return grpc.DialContext(ctx, address,
-		grpc.WithInsecure(),
 		grpc.WithBlock(),
-		grpc.WithBalancerName("round_robin"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
 	)
 }
