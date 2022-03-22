@@ -188,15 +188,16 @@ func sleep(ctx context.Context, d time.Duration) {
 }
 
 func mkConnection(ctx context.Context, address string) (*grpc.ClientConn, error) {
-	if address == ":" || address == "" {
-		address = "127.0.0.1:7070"
-	} else if strings.HasPrefix(address, ":") {
-		address = "127.0.0.1" + address
-	}
-
-	return grpc.DialContext(ctx, address,
+	serviceConfig := fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)
+	options := []grpc.DialOption{
 		// grpc.WithBlock(),
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultServiceConfig(fmt.Sprintf(`{"LoadBalancingPolicy": "%s"}`, roundrobin.Name)),
-	)
+		grpc.WithDefaultServiceConfig(serviceConfig),
+	}
+
+	if !strings.HasPrefix(address, "static:") {
+		address = "static:" + address
+	}
+
+	return grpc.DialContext(ctx, address, options...)
 }

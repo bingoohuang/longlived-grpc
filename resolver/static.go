@@ -24,7 +24,9 @@ func (sb *StaticBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 	endpoints := strings.Split(target.Endpoint, ",")
 	log.Printf("static resolver: %s", target.Endpoint)
 	for i, endpoint := range endpoints {
-		if strings.HasPrefix(endpoint, ":") {
+		if endpoint == ":" {
+			endpoints[i] = "localhost:7070"
+		} else if strings.HasPrefix(endpoint, ":") {
 			endpoints[i] = "localhost" + endpoint
 		}
 	}
