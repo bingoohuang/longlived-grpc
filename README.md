@@ -124,7 +124,7 @@ $ longlived-grpc -client
 ## 
 
 1. ensure env `GRPC_CHANNELZ` has not the value as any of `0`, `off`, `no`
-2. install channelzcli `go install github.com/kazegusuri/channelzcli@latest`
+2. install channelzcli `go install github.com/bingoohuang/channelzcli@latest`
 3. start longlived-grpc: `longlived-grpc`
 
 ```sh
