@@ -1,8 +1,6 @@
 # gRPC Long-lived Streaming
 
-https://github.com/omri86/longlived-grpc
-
-This repository holds a minimalistic example of a gRPC long-lived streaming application.
+This repository fork from [this repo](https://github.com/omri86/longlived-grpc) holds a minimalistic example of a gRPC long-lived streaming application.
 
 ## Resources
 
@@ -15,9 +13,9 @@ This repository holds a minimalistic example of a gRPC long-lived streaming appl
 
 ### gRPC支持四种通信模式
 
-gRPC支持四种通信模式，它们是（以下四张图截自[《gRPC: Up and Running》一书](https://book.douban.com/subject/34796013/）：
+gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一书](https://book.douban.com/subject/34796013/)：
 
-1. 简单RPC(Simple RPC)：最简单的，也是最常用的gRPC通信模式，简单来说就是一请求一应答
+1. 简单RPC(Simple RPC)：最简单的，也是最常用的 gRPC 通信模式，简单来说就是一请求一应答
    ![image](https://user-images.githubusercontent.com/1940588/158950733-a8bb3f1a-9a8f-4b94-9d81-146157207da6.png)
 2. 服务端流RPC(Server-streaming RPC)：一请求，多应答
    ![image](https://user-images.githubusercontent.com/1940588/158950767-c2b54650-fd1d-4329-b0dd-bacd7aadf607.png)

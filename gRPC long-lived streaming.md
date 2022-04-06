@@ -1,5 +1,5 @@
-
 # blog
+
 In this blog post I’ll explore a way to implement gRPC long-lived streaming. Using gRPC is perfect for cloud native applications mainly since it is modern, bandwidth and CPU efficient and low latency which is exactly what distributed systems require.
 
 If you’re reading this I assume you are already familiar with gRPC. But if you still feel like you need an introduction, please leave a comment below and I will put together a gRPC introductory post as well.
