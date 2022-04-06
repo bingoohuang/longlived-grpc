@@ -119,7 +119,15 @@ $ longlived-grpc -client
 3. start the server: `longlived-grpc`
 4. start the grpcui: `grpcui -plaintext localhost:7070`
 
-## 
+## HTTP REST API
+
+1. `:7080/server/start` start the grpc server
+1. `:7080/server/stop` stop the grpc server
+1. `:7080/client/start` start a new grpc streaming call
+1. `:7080/client/stop?id=xxx` stop an existing grpc streaming call
+1. `:7080/client/list` list the existing grpc streaming calls
+1. `:7080/client/notify` do an invoke notify grpc call
+## channelzcli
 
 1. ensure env `GRPC_CHANNELZ` has not the value as any of `0`, `off`, `no`
 2. install channelzcli `go install github.com/bingoohuang/channelzcli@latest`
