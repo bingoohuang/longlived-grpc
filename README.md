@@ -34,7 +34,7 @@ Note that this was tested on protoc version: `libprotoc 3.17.3`
 ## Running the server
 
 ```
-$ longlived-grpc
+$ GOLOG_STDOUT=true longlived-grpc -mode server
 2022/03/18 12:17:27 Starting server on address [::]:7070
 2022/03/18 12:17:27 Starting data generation
 2022/03/18 12:17:28 Received subscribe request from ID: 4
@@ -65,7 +65,7 @@ $ longlived-grpc
 The client process emulates several clients (default is 10).
 
 ```
-$ longlived-grpc -client
+$ GOLOG_STDOUT=true longlived-grpc -mode client
 2022/03/18 12:17:19 Subscribing client ID: 1
 2022/03/18 12:17:20 Client ID 1 got response: "data mock for: 1"
 2022/03/18 12:17:21 Client ID 1 got response: "data mock for: 1"
@@ -121,12 +121,18 @@ $ longlived-grpc -client
 
 ## HTTP REST API
 
+### Server API list
+
 1. `:7080/server/start` start the grpc server
-1. `:7080/server/stop` stop the grpc server
-1. `:7080/client/start` start a new grpc streaming call
-1. `:7080/client/stop?id=xxx` stop an existing grpc streaming call
-1. `:7080/client/list` list the existing grpc streaming calls
-1. `:7080/client/notify` do an invoke notify grpc call
+2. `:7080/server/stop` stop the grpc server
+
+### Client API list
+
+3. `:7081/client/start` start a new grpc streaming call
+4. `:7081/client/stop?id=xxx` stop an existing grpc streaming call
+5. `:7081/client/list` list the existing grpc streaming calls
+6. `:7081/client/notify` do an invoke notify grpc call
+
 ## channelzcli
 
 1. ensure env `GRPC_CHANNELZ` has not the value as any of `0`, `off`, `no`
