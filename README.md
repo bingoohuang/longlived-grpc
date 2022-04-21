@@ -110,7 +110,7 @@ $ GOLOG_STDOUT=true longlived-grpc -mode client
 ## multiple servers
 
 1. server: `goreman start`
-2. client: `longlived-grpc -client -addr "static::7071,:7072,:7073"`
+2. client: `longlived-grpc -mode client -addr "static::7071,:7072,:7073"`
 
 ## grpc ui
 
