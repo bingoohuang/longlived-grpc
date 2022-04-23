@@ -1,15 +1,17 @@
 # gRPC Long-lived Streaming
 
-This repository fork from [this repo](https://github.com/omri86/longlived-grpc) holds a minimalistic example of a gRPC long-lived streaming application.
+This repository fork from [this repo](https://github.com/omri86/longlived-grpc) holds a minimalistic example of a gRPC
+long-lived streaming application.
 
 ## Resources
 
-1. [gRPC客户端的那些事儿](https://tonybai.com/2021/09/17/those-things-about-grpc-client/)
-2. [blog grpc-long-lived-streaming](https://dev.bitolog.com/grpc-long-lived-streaming/)
-3. [gRPC is easy to misconfigure](https://www.evanjones.ca/grpc-is-tricky.html)
+1. [grpc-go, a gRPC client-side load balancing example](https://github.com/grpc/grpc-go)
+2. [gRPC客户端的那些事儿](https://tonybai.com/2021/09/17/those-things-about-grpc-client/)
+3. [blog grpc-long-lived-streaming](https://dev.bitolog.com/grpc-long-lived-streaming/)
+4. [gRPC is easy to misconfigure](https://www.evanjones.ca/grpc-is-tricky.html)
     - Client keepalive is dangerous: do not use it
     - Servers cannot return errors larger than 7 kiB
-4. [gRPC-中使用-Channel](https://helloworlde.github.io/2021/01/04/gRPC-中使用-Channelz/)
+5. [gRPC-中使用-Channel](https://helloworlde.github.io/2021/01/04/gRPC-中使用-Channelz/)
 
 ### gRPC支持四种通信模式
 
@@ -23,6 +25,12 @@ gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一�
    ![image](https://user-images.githubusercontent.com/1940588/158950809-1f9c66ac-508c-44ec-a082-4e985e541bed.png)
 4. 双向流RPC(Bidirectional-Streaming RPC)：多请求，多应答
    ![image](https://user-images.githubusercontent.com/1940588/158950837-b605bdc3-8cca-48b2-9362-21766478a899.png)
+
+## Prequirements
+
+- [protoc](https://github.com/google/protobuf)
+- [protoc-gen-go](https://github.com/golang/protobuf/tree/master/protoc-gen-go)
+    - `$ go get -u github.com/golang/protobuf/protoc-gen-go`
 
 ## Instructions
 

@@ -109,3 +109,5 @@ targz:
 	find . -type f -name '\.*' -print
 	cd .. && rm -f ${app}.tar.gz && tar czvf ${app}.tar.gz --exclude .git --exclude .idea ${app}
 
+protoc:
+	protoc --go_out=plugins=grpc:. protos/*.proto
