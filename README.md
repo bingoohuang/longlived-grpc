@@ -33,84 +33,93 @@ Note that this was tested on protoc version: `libprotoc 3.17.3`
 
 ## Running the server
 
-```
-$ GOLOG_STDOUT=true longlived-grpc -mode server
-2022/03/18 12:17:27 Starting server on address [::]:7070
-2022/03/18 12:17:27 Starting data generation
-2022/03/18 12:17:28 Received subscribe request from ID: 4
-2022/03/18 12:17:29 Received subscribe request from ID: 1
-2022/03/18 12:17:29 Received subscribe request from ID: 3
-2022/03/18 12:17:29 Received subscribe request from ID: 2
-2022/03/18 12:17:30 Received subscribe request from ID: 5
-2022/03/18 12:17:32 Received subscribe request from ID: 6
-2022/03/18 12:17:33 Client ID 5 has disconnected
-2022/03/18 12:17:33 Client ID 6 has disconnected
-2022/03/18 12:17:33 Client ID 1 has disconnected
-2022/03/18 12:17:33 Client ID 2 has disconnected
-2022/03/18 12:17:33 Client ID 4 has disconnected
-2022/03/18 12:17:33 Client ID 3 has disconnected
-2022/03/18 12:17:33 Failed to send data to client: rpc error: code = Unavailable desc = transport is closing
-2022/03/18 12:17:33 Failed to send data to client: rpc error: code = Unavailable desc = transport is closing
-2022/03/18 12:17:33 Failed to send data to client: rpc error: code = Unavailable desc = transport is closing
-2022/03/18 12:17:33 Failed to send data to client: rpc error: code = Unavailable desc = transport is closing
-2022/03/18 12:17:33 Failed to send data to client: rpc error: code = Unavailable desc = transport is closing
-2022/03/18 12:17:33 Failed to send data to client: rpc error: code = Unavailable desc = transport is closing
-2022/03/18 12:17:35 Received subscribe request from ID: 1
-2022/03/18 12:17:37 Received subscribe request from ID: 2
-2022/03/18 12:17:39 Received subscribe request from ID: 3
+```sh
+$ longlived-grpc -v --addr :7070,:7080,:7090 -mode server
+2022-04-23 16:12:08.036 [INFO ] 52620 --- [1    ] [-]  : log file created: /Users/bingoo/logs/longlived-grpc/longlived-grpc.log
+2022-04-23 16:12:08.037 [INFO ] 52620 --- [20   ] [-]  : Starting mock data generation
+2022-04-23 16:12:08.037 [INFO ] 52620 --- [24   ] [-]  : Starting mock data generation
+2022-04-23 16:12:08.037 [INFO ] 52620 --- [26   ] [-]  : ListenAndServe rest server at :7170
+2022-04-23 16:12:08.037 [INFO ] 52620 --- [22   ] [-]  : Starting mock data generation
+2022-04-23 16:12:08.038 [INFO ] 52620 --- [25   ] [-]  : Starting server on address [::]:7090
+2022-04-23 16:12:08.038 [INFO ] 52620 --- [23   ] [-]  : Starting server on address [::]:7080
+2022-04-23 16:12:08.038 [INFO ] 52620 --- [21   ] [-]  : Starting server on address [::]:7070
+2022-04-23 16:14:35.357 [WARN ] 52620 --- [30   ] [1517778949952770048]  : 127.0.0.1 GET /client/start [404] -1  gurl/1.0.0 (406ns)
+2022-04-23 16:15:14.933 [INFO ] 52620 --- [98   ] [-]  : Received subscribe request from ID: 28BtH1SSTqKzGqzRlznboTGQZY7
+2022-04-23 16:15:15.207 [INFO ] 52620 --- [57   ] [-]  : NotifyReceived: 28BtH1SSTqKzGqzRlznboTGQZY7
+2022-04-23 16:15:16.209 [INFO ] 52620 --- [99   ] [-]  : NotifyReceived: 28BtH1SSTqKzGqzRlznboTGQZY7
+2022-04-23 16:15:17.209 [INFO ] 52620 --- [69   ] [-]  : NotifyReceived: 28BtH1SSTqKzGqzRlznboTGQZY7
+2022-04-23 16:15:18.211 [INFO ] 52620 --- [70   ] [-]  : NotifyReceived: 28BtH1SSTqKzGqzRlznboTGQZY7
+2022-04-23 16:15:19.210 [INFO ] 52620 --- [71   ] [-]  : NotifyReceived: 28BtH1SSTqKzGqzRlznboTGQZY7
+2022-04-23 16:15:24.628 [INFO ] 52620 --- [98   ] [-]  : Client ID 28BtH1SSTqKzGqzRlznboTGQZY7 has disconnected
+2022-04-23 16:15:25.214 [INFO ] 52620 --- [22   ] [-]  : Failed to send data to client: rpc error: code = Canceled desc = context canceled
+2022-04-23 16:15:34.713 [INFO ] 52620 --- [101  ] [-]  : NotifyReceived: 28BtJSzb2buZxWPv8dmx2ya4IqK
 ```
 
 ## Running the client(s)
 
-The client process emulates several clients (default is 10).
-
+```sh
+$ 2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : log file created: /Users/bingoo/logs/longlived-grpc/longlived-grpc.log
+2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : static resolver: :7070,:7080,:7090
+2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : static resolved: [localhost:7070 localhost:7080 localhost:7090]
+2022-04-23 16:24:41.576 [INFO ] 53744 --- [24   ] [-]  : ListenAndServe rest server at :7270
+2022-04-23 16:24:48.478 [INFO ] 53744 --- [68   ] [1517781521828679680]  : 127.0.0.1 GET /client/start [200] 111  gurl/1.0.0 (64.391µs)
+2022-04-23 16:24:48.478 [INFO ] 53744 --- [70   ] [-]  : Subscribing client ID 28BuR6tGDmISx8OveFGpk2HwXfE
+2022-04-23 16:24:48.478 [INFO ] 53744 --- [71   ] [-]  : Subscribing client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE
+2022-04-23 16:24:48.553 [INFO ] 53744 --- [71   ] [-]  : Client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE got response: "data mock for: 28BuR9Ocl02Xlmnvhk8ZPcjD7RE"
+2022-04-23 16:24:48.553 [INFO ] 53744 --- [70   ] [-]  : Client ID 28BuR6tGDmISx8OveFGpk2HwXfE got response: "data mock for: 28BuR6tGDmISx8OveFGpk2HwXfE"
+2022-04-23 16:24:49.554 [INFO ] 53744 --- [71   ] [-]  : Client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE got response: "data mock for: 28BuR9Ocl02Xlmnvhk8ZPcjD7RE"
+2022-04-23 16:24:49.554 [INFO ] 53744 --- [70   ] [-]  : Client ID 28BuR6tGDmISx8OveFGpk2HwXfE got response: "data mock for: 28BuR6tGDmISx8OveFGpk2HwXfE"
+2022-04-23 16:24:50.555 [INFO ] 53744 --- [71   ] [-]  : Client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE got response: "data mock for: 28BuR9Ocl02Xlmnvhk8ZPcjD7RE"
+2022-04-23 16:24:50.555 [INFO ] 53744 --- [70   ] [-]  : Client ID 28BuR6tGDmISx8OveFGpk2HwXfE got response: "data mock for: 28BuR6tGDmISx8OveFGpk2HwXfE"
+2022-04-23 16:24:51.556 [INFO ] 53744 --- [71   ] [-]  : Client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE got response: "data mock for: 28BuR9Ocl02Xlmnvhk8ZPcjD7RE"
+2022-04-23 16:24:51.556 [INFO ] 53744 --- [70   ] [-]  : Client ID 28BuR6tGDmISx8OveFGpk2HwXfE got response: "data mock for: 28BuR6tGDmISx8OveFGpk2HwXfE"
+2022-04-23 16:24:52.557 [INFO ] 53744 --- [70   ] [-]  : Client ID 28BuR6tGDmISx8OveFGpk2HwXfE got response: "data mock for: 28BuR6tGDmISx8OveFGpk2HwXfE"
+2022-04-23 16:24:59.545 [INFO ] 53744 --- [72   ] [1517781568247042048]  : Unsubscribe client ID: 28BuR6tGDmISx8OveFGpk2HwXfE
+2022-04-23 16:24:59.545 [INFO ] 53744 --- [72   ] [1517781568247042048]  : unsubscribe successfully, response:
+2022-04-23 16:24:59.546 [INFO ] 53744 --- [72   ] [1517781568247042048]  : 127.0.0.1 GET /client/stop [200] 93  gurl/1.0.0 (826.985µs)
+2022-04-23 16:24:59.546 [INFO ] 53744 --- [70   ] [-]  : stream is finished: EOF
+2022-04-23 16:24:59.546 [INFO ] 53744 --- [70   ] [-]  : Client ID 28BuR6tGDmISx8OveFGpk2HwXfE exited
+2022-04-23 16:24:59.563 [INFO ] 53744 --- [71   ] [-]  : Client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE got response: "data mock for: 28BuR9Ocl02Xlmnvhk8ZPcjD7RE"
+2022-04-23 16:25:00.563 [INFO ] 53744 --- [71   ] [-]  : Client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE got response: "data mock for: 28BuR9Ocl02Xlmnvhk8ZPcjD7RE"
+2022-04-23 16:25:01.563 [INFO ] 53744 --- [71   ] [-]  : Client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE got response: "data mock for: 28BuR9Ocl02Xlmnvhk8ZPcjD7RE"
+2022-04-23 16:25:08.500 [INFO ] 53744 --- [37   ] [1517781605802840064]  : Unsubscribe client ID: 28BuR9Ocl02Xlmnvhk8ZPcjD7RE
+2022-04-23 16:25:08.501 [INFO ] 53744 --- [37   ] [1517781605802840064]  : unsubscribe successfully, response:
+2022-04-23 16:25:08.501 [INFO ] 53744 --- [37   ] [1517781605802840064]  : 127.0.0.1 GET /client/stop [200] 93  gurl/1.0.0 (1.169235ms)
+2022-04-23 16:25:08.501 [INFO ] 53744 --- [71   ] [-]  : stream is finished: EOF
+2022-04-23 16:25:08.501 [INFO ] 53744 --- [71   ] [-]  : Client ID 28BuR9Ocl02Xlmnvhk8ZPcjD7RE exited
+2022-04-23 16:25:32.911 [INFO ] 53744 --- [90   ] [1517781708189995008]  : peer.Addr: [tcp] [::1]:7090
+2022-04-23 16:25:32.913 [INFO ] 53744 --- [90   ] [1517781708189995008]  : peer.Addr: [tcp] [::1]:7070
+2022-04-23 16:25:32.913 [INFO ] 53744 --- [90   ] [1517781708189995008]  : peer.Addr: [tcp] [::1]:7080
+2022-04-23 16:25:32.914 [INFO ] 53744 --- [90   ] [1517781708189995008]  : peer.Addr: [tcp] [::1]:7090
+2022-04-23 16:25:32.915 [INFO ] 53744 --- [90   ] [1517781708189995008]  : 127.0.0.1 GET /client/notify [200] 264  gurl/1.0.0 (3.779777ms)
 ```
-$ GOLOG_STDOUT=true longlived-grpc -mode client
-2022/03/18 12:17:19 Subscribing client ID: 1
-2022/03/18 12:17:20 Client ID 1 got response: "data mock for: 1"
-2022/03/18 12:17:21 Client ID 1 got response: "data mock for: 1"
-2022/03/18 12:17:21 Subscribing client ID: 2
-2022/03/18 12:17:22 Client ID 1 got response: "data mock for: 1"
-2022/03/18 12:17:22 Client ID 2 got response: "data mock for: 2"
-2022/03/18 12:17:23 Client ID 1 got response: "data mock for: 1"
-2022/03/18 12:17:23 Client ID 2 got response: "data mock for: 2"
-2022/03/18 12:17:23 Subscribing client ID: 3
-2022/03/18 12:17:24 Client ID 1 got response: "data mock for: 1"
-2022/03/18 12:17:24 Client ID 2 got response: "data mock for: 2"
-2022/03/18 12:17:24 Client ID 3 got response: "data mock for: 3"
-2022/03/18 12:17:24 Failed to receive message: rpc error: code = Unavailable desc = error reading from server: EOF
-2022/03/18 12:17:24 Failed to receive message: rpc error: code = Unavailable desc = error reading from server: EOF
-2022/03/18 12:17:24 Failed to receive message: rpc error: code = Unavailable desc = error reading from server: EOF
-2022/03/18 12:17:28 Subscribing client ID: 4
-2022/03/18 12:17:28 Client ID 4 got response: "data mock for: 4"
-2022/03/18 12:17:29 Client ID 4 got response: "data mock for: 4"
-2022/03/18 12:17:29 Subscribing client ID: 3
-2022/03/18 12:17:29 Subscribing client ID: 2
-2022/03/18 12:17:29 Subscribing client ID: 1
-2022/03/18 12:17:30 Subscribing client ID: 5
-2022/03/18 12:17:30 Client ID 3 got response: "data mock for: 3"
-2022/03/18 12:17:30 Client ID 4 got response: "data mock for: 4"
-2022/03/18 12:17:30 Client ID 1 got response: "data mock for: 1"
-2022/03/18 12:17:30 Client ID 5 got response: "data mock for: 5"
-2022/03/18 12:17:30 Client ID 2 got response: "data mock for: 2"
-2022/03/18 12:17:31 Client ID 1 got response: "data mock for: 1"
-2022/03/18 12:17:31 Client ID 3 got response: "data mock for: 3"
-2022/03/18 12:17:31 Client ID 5 got response: "data mock for: 5"
-2022/03/18 12:17:31 Client ID 2 got response: "data mock for: 2"
-2022/03/18 12:17:31 Client ID 4 got response: "data mock for: 4"
-2022/03/18 12:17:32 Subscribing client ID: 6
-2022/03/18 12:17:32 Client ID 3 got response: "data mock for: 3"
-2022/03/18 12:17:32 Client ID 1 got response: "data mock for: 1"
-2022/03/18 12:17:32 Client ID 5 got response: "data mock for: 5"
-2022/03/18 12:17:32 Client ID 2 got response: "data mock for: 2"
-2022/03/18 12:17:32 Client ID 4 got response: "data mock for: 4"
-2022/03/18 12:17:32 Client ID 6 got response: "data mock for: 6"
+
+## use client rest APIs
+
+```sh
+$ gurl :7270/client/start -pb -r
+{"status":200,"message":"OK","data":{"clientID":"28Bu5TlPfDD7vf5e0D9lFC6jcep"}}
+
+$ gurl :7270/client/stop id==28Bu5TlPfDD7vf5e0D9lFC6jcep -pb -r
+{"status":200,"message":"stop and deleted","data":{"clientID":"28Bu5TlPfDD7vf5e0D9lFC6jcep"}}
+
+$ gurl :7270/client/start -pb -r n==2
+{"status":200,"message":"OK","data":{"clientID":["28BuR6tGDmISx8OveFGpk2HwXfE","28BuR9Ocl02Xlmnvhk8ZPcjD7RE"]}}
+
+$ gurl :7270/client/stop id==28BuR6tGDmISx8OveFGpk2HwXfE -pb -r
+{"status":200,"message":"stop and deleted","data":{"clientID":"28BuR6tGDmISx8OveFGpk2HwXfE"}}
+
+$ gurl :7270/client/stop id==28BuR9Ocl02Xlmnvhk8ZPcjD7RE -pb -r
+{"status":200,"message":"stop and deleted","data":{"clientID":"28BuR9Ocl02Xlmnvhk8ZPcjD7RE"}}
+
+$ gurl :7270/client/notify n==4 -pb -r
+{"status":200,"message":"notified","data":[{"data":"NotifyReceived: 28BuWcYzElXkHt2pxQrUPPJVwds"},{"data":"NotifyReceived: 28BuWcIdNGGggWUEBBAKzxwEetS"},{"data":"NotifyReceived: 28BuWh22X8TT5de9PaV43veYIr9"},{"data":"NotifyReceived: 28BuWd57VUCQzHjExwIHYh9wQ7M"}]}
 ```
 
 ## multiple servers
 
 1. server: `goreman start`
-2. client: `longlived-grpc -mode client -addr "static::7071,:7072,:7073"`
+2. client: `longlived-grpc -mode client -addr ":7071,:7072,:7073" -v`
 
 ## grpc ui
 

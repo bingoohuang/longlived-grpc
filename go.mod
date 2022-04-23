@@ -3,11 +3,12 @@ module longlived-gprc
 go 1.18
 
 require (
-	github.com/bingoohuang/gg v0.0.0-20220401032752-6d4a79888f0e
-	github.com/bingoohuang/golog v0.0.0-20220324084844-762621e53cfb
+	github.com/bingoohuang/gg v0.0.0-20220420132852-a92417df3205
+	github.com/bingoohuang/golog v0.0.0-20220419071623-16dcc2aaef54
 	github.com/gin-gonic/gin v1.7.7
 	github.com/segmentio/ksuid v1.0.4
-	google.golang.org/grpc v1.45.0
+	golang.org/x/exp v0.0.0-20220414153411-bcd21879b8fd
+	google.golang.org/grpc v1.46.0
 	google.golang.org/protobuf v1.28.0
 )
 

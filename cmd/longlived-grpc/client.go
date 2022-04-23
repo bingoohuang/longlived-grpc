@@ -5,11 +5,15 @@ import (
 	"fmt"
 	"io"
 	"log"
+	longlived_grpc "longlived-gprc"
 	"longlived-gprc/protos"
 	_ "longlived-gprc/resolver"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"google.golang.org/grpc/peer"
 
 	"github.com/gin-gonic/gin"
 	"github.com/segmentio/ksuid"
@@ -33,21 +37,19 @@ func clientRestHandle(addr string) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		switch g.Param("action") {
 		case "list":
-			clients := stoppers.List(ModeClient)
-			g.JSON(200, Rsp{Status: 200, Message: "OK", Data: clients})
+			g.JSON(200, Rsp{Status: 200, Message: "OK", Data: stoppers.List(ModeClient)})
 		case "start":
-			client := startClients(ctx, clientContainer)
-			clientID := client.GetID()
-			stoppers.Add(client)
-			g.JSON(200, Rsp{Status: 200, Message: "OK", Data: H{"clientID": clientID}})
-		case "notify":
-			c := protos.NewLonglivedClient(clientContainer.conn)
-			rsp, err := c.NotifyReceived(ctx, &protos.Request{Id: ksuid.New().String()})
-			if err != nil {
-				g.JSON(500, Rsp{Status: 500, Message: "error", Data: err.Error()})
-			} else {
-				g.JSON(200, Rsp{Status: 200, Message: "notified", Data: rsp})
+			n := longlived_grpc.QueryInt(g, "n", 1)
+			clientIDs := make([]string, n)
+			for i := 0; i < n; i++ {
+				client := startClients(ctx, clientContainer)
+				stoppers.Add(client)
+				clientIDs[i] = client.GetID()
+
 			}
+			g.JSON(200, Rsp{Status: 200, Message: "OK", Data: H{"clientID": clientIDs}})
+		case "notify":
+			notify(g, clientContainer, ctx)
 		case "stop":
 			clientID := g.Query("id")
 			if _, ok := stoppers.DeleteClient(clientID); ok {
@@ -61,15 +63,43 @@ func clientRestHandle(addr string) gin.HandlerFunc {
 	}
 }
 
+func notify(g *gin.Context, clientContainer *ClientContainer, ctx context.Context) {
+	c := protos.NewLonglivedClient(clientContainer.conn)
+	n := longlived_grpc.QueryInt(g, "n", 1)
+
+	data := make([]interface{}, n)
+	var errorNum int
+	for i := 0; i < n; i++ {
+		var p peer.Peer
+		rsp, err := c.NotifyReceived(ctx, &protos.Request{Id: ksuid.New().String()},
+			grpc.WaitForReady(true), // To wait a resolver returning addrs.
+			grpc.Peer(&p))
+		errorNum += longlived_grpc.IfError(err, 1, 0)
+		data[i] = longlived_grpc.ErrOr(err, rsp)
+
+		if p.Addr != nil {
+			log.Printf("peer.Addr: [%s] %s", p.Addr.Network(), p.Addr.String())
+		}
+	}
+
+	message := "notified"
+	if errorNum > 0 {
+		message += " with " + strconv.Itoa(errorNum) + " errors"
+	}
+
+	g.JSON(200, Rsp{
+		Status: 200, Message: message,
+		Data: longlived_grpc.IfAny(len(data) == 1, data[0], data),
+	})
+}
+
 type ClientContainer struct {
 	wg     sync.WaitGroup
 	cancel context.CancelFunc
 	conn   *grpc.ClientConn
 }
 
-func (c *ClientContainer) Mode() Mode {
-	return ModeClient
-}
+func (c *ClientContainer) Mode() Mode { return ModeClient }
 
 func (c *ClientContainer) Stop() {
 	c.cancel()
@@ -79,9 +109,7 @@ func (c *ClientContainer) Stop() {
 	}
 }
 
-func (c *ClientContainer) AddWg() {
-	c.wg.Add(1)
-}
+func (c *ClientContainer) AddWg() { c.wg.Add(1) }
 
 func startClients(ctx context.Context, clients *ClientContainer) *longlivedClient {
 	clients.AddWg()

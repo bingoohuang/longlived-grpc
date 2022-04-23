@@ -17,7 +17,6 @@ type StaticBuilder struct{}
 
 func (sb *StaticBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 	opts resolver.BuildOptions) (resolver.Resolver, error) {
-
 	// use info in target to access naming service
 	// parse the target.endpoint
 	// resolver.Target{Scheme:"static", Authority:"", Endpoint:"localhost:5051,localhost:5052,localhost:5053"}
@@ -31,10 +30,7 @@ func (sb *StaticBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 		}
 	}
 	log.Printf("static resolved: %v", endpoints)
-	r := &StaticResolver{
-		endpoints: endpoints,
-		cc:        cc,
-	}
+	r := &StaticResolver{endpoints: endpoints, cc: cc}
 	r.ResolveNow(resolver.ResolveNowOptions{})
 	return r, nil
 }
@@ -56,17 +52,14 @@ func (r *StaticResolver) ResolveNow(opts resolver.ResolveNowOptions) {
 func (r *StaticResolver) Close() {}
 
 func (r *StaticResolver) doResolve() {
-	var addrs []resolver.Address
+	addrs := make([]resolver.Address, len(r.endpoints))
 	for i, addr := range r.endpoints {
-		addrs = append(addrs, resolver.Address{
+		addrs[i] = resolver.Address{
 			Addr:       addr,
 			ServerName: fmt.Sprintf("instance-%d", i+1),
-		})
+		}
 	}
 
-	newState := resolver.State{
-		Addresses: addrs,
-	}
-
+	newState := resolver.State{Addresses: addrs}
 	r.cc.UpdateState(newState)
 }

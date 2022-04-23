@@ -30,12 +30,10 @@ func (s Stoppers) Stop() {
 
 func (s *Stoppers) DeleteClient(id string) (Stopper, bool) {
 	for i, st := range s.Values {
-		if st.Mode() == ModeClient {
-			if st.GetID() == id {
-				st.Stop()
-				s.Values = append(s.Values[:i], s.Values[i+1:]...)
-				return st, true
-			}
+		if st.Mode() == ModeClient && st.GetID() == id {
+			st.Stop()
+			s.Values = append(s.Values[:i], s.Values[i+1:]...)
+			return st, true
 		}
 	}
 
@@ -60,7 +58,6 @@ func (s Stoppers) StopMode(mode Mode) (ids []string) {
 	for _, st := range s.Values {
 		if st.Mode() == mode {
 			st.Stop()
-
 			ids = append(ids, st.GetID())
 		}
 	}
@@ -74,12 +71,14 @@ type Rsp struct {
 	Data    any    `json:"data"`
 }
 
-func serverRestHandle(addr string) gin.HandlerFunc {
+func serverRestHandle(addrs []string) gin.HandlerFunc {
 	return func(g *gin.Context) {
 		switch g.Param("action") {
 		case "start":
 			if ids := stoppers.List(ModeServer); len(ids) == 0 {
-				stoppers.Add(startServer(addr))
+				for _, addr := range addrs {
+					stoppers.Add(startServer(addr))
+				}
 				g.JSON(200, Rsp{Status: 200, Message: "OK"})
 			} else {
 				g.JSON(200, Rsp{Status: 304, Message: "Server already started", Data: H{"ids": ids}})

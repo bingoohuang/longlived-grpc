@@ -8,13 +8,14 @@ package protos
 
 import (
 	context "context"
+	reflect "reflect"
+	sync "sync"
+
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
 )
 
 const (
@@ -153,11 +154,14 @@ func file_protos_longlived_proto_rawDescGZIP() []byte {
 	return file_protos_longlived_proto_rawDescData
 }
 
-var file_protos_longlived_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
-var file_protos_longlived_proto_goTypes = []interface{}{
-	(*Request)(nil),  // 0: protos.Request
-	(*Response)(nil), // 1: protos.Response
-}
+var (
+	file_protos_longlived_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+	file_protos_longlived_proto_goTypes  = []interface{}{
+		(*Request)(nil),  // 0: protos.Request
+		(*Response)(nil), // 1: protos.Response
+	}
+)
+
 var file_protos_longlived_proto_depIdxs = []int32{
 	0, // 0: protos.Longlived.Subscribe:input_type -> protos.Request
 	0, // 1: protos.Longlived.Unsubscribe:input_type -> protos.Request
@@ -224,8 +228,10 @@ func file_protos_longlived_proto_init() {
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ context.Context
-var _ grpc.ClientConnInterface
+var (
+	_ context.Context
+	_ grpc.ClientConnInterface
+)
 
 // This is a compile-time assertion to ensure that this generated file
 // is compatible with the grpc package it is being compiled against.
@@ -312,9 +318,11 @@ type UnimplementedLonglivedServer struct {
 func (*UnimplementedLonglivedServer) Subscribe(*Request, Longlived_SubscribeServer) error {
 	return status.Errorf(codes.Unimplemented, "method Subscribe not implemented")
 }
+
 func (*UnimplementedLonglivedServer) Unsubscribe(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Unsubscribe not implemented")
 }
+
 func (*UnimplementedLonglivedServer) NotifyReceived(context.Context, *Request) (*Response, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method NotifyReceived not implemented")
 }
