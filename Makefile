@@ -1,7 +1,7 @@
 .PHONY: test install git.commit git.branch default
 all: test install
 
-app=$(notdir $(shell pwd))
+app=$(notdir $(shell pwd |sed 's/-//'))
 appVersion := 1.0.0
 goVersion := $(shell go version | sed 's/go version //'|sed 's/ /_/')
 # e.g. 2021-10-28T11:49:52+0800

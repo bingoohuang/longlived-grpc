@@ -147,7 +147,7 @@ $ gurl :7270/client/notify n==4 -pb -r
 ### Client API list
 
 3. `:7081/client/start` start a new grpc streaming call
-4. `:7081/client/stop?id=xxx` stop an existing grpc streaming call
+4. `:7081/client/stop?id=xxx` stop an existing grpc streaming call, use id=all to stop all clients.
 5. `:7081/client/list` list the existing grpc streaming calls
 6. `:7081/client/notify` do an invoke notify grpc call
 

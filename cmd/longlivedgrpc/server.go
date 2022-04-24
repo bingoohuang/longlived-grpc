@@ -30,13 +30,16 @@ func (s Stoppers) Stop() {
 }
 
 func (s *Stoppers) DeleteAllClients() (ids []string) {
-	for i, st := range s.Values {
+	var values []Stopper
+	for _, st := range s.Values {
 		if st.Mode() == ModeClient {
 			ids = append(ids, st.GetID())
 			st.Stop()
-			s.Values = append(s.Values[:i], s.Values[i+1:]...)
+		} else {
+			values = append(values, st)
 		}
 	}
+	s.Values = values
 
 	return
 }
