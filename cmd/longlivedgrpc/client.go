@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"io"
 	"log"
+	longlivedgrpc "longlivedgprc"
 	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"longlivedgprc"
 	"longlivedgprc/protos"
 	_ "longlivedgprc/resolver"
 
@@ -41,7 +41,7 @@ func clientRestHandle(addr string) gin.HandlerFunc {
 		case "list":
 			g.JSON(200, Rsp{Status: 200, Message: "OK", Data: stoppers.List(ModeClient)})
 		case "start":
-			n := longlived_grpc.QueryInt(g, "n", 1)
+			n := longlivedgrpc.QueryInt(g, "n", 1)
 			clientIDs := make([]string, n)
 			for i := 0; i < n; i++ {
 				c := startClients(ctx, clientContainer)
@@ -71,7 +71,8 @@ func clientRestHandle(addr string) gin.HandlerFunc {
 
 func notify(g *gin.Context, clientContainer *ClientContainer, ctx context.Context) {
 	c := protos.NewLonglivedClient(clientContainer.conn)
-	n := longlived_grpc.QueryInt(g, "n", 1)
+
+	n := longlivedgrpc.QueryInt(g, "n", 1)
 
 	data := make([]interface{}, n)
 	var errorNum int
@@ -80,8 +81,8 @@ func notify(g *gin.Context, clientContainer *ClientContainer, ctx context.Contex
 		rsp, err := c.NotifyReceived(ctx, &protos.Request{Id: ksuid.New().String()},
 			grpc.WaitForReady(true), // To wait a resolver returning addrs.
 			grpc.Peer(&p))
-		errorNum += longlived_grpc.IfError(err, 1, 0)
-		data[i] = longlived_grpc.ErrOr(err, rsp)
+		errorNum += longlivedgrpc.IfError(err, 1, 0)
+		data[i] = longlivedgrpc.ErrOr(err, rsp)
 
 		if p.Addr != nil {
 			log.Printf("peer.Addr: [%s] %s", p.Addr.Network(), p.Addr.String())
@@ -95,7 +96,7 @@ func notify(g *gin.Context, clientContainer *ClientContainer, ctx context.Contex
 
 	g.JSON(200, Rsp{
 		Status: 200, Message: message,
-		Data: longlived_grpc.IfAny(len(data) == 1, data[0], data),
+		Data: longlivedgrpc.IfAny(len(data) == 1, data[0], data),
 	})
 }
 
@@ -165,7 +166,8 @@ func newClient(ctx context.Context, clientContainer *ClientContainer) *client {
 // Subscribe subscribes to message from the gRPC server
 func (c *client) Subscribe() (protos.Longlived_SubscribeClient, error) {
 	log.Printf("Subscribing client ID %s", c.ID)
-	return c.client.Subscribe(c.ctx, &protos.Request{Id: c.ID})
+	sc, err := c.client.Subscribe(c.ctx, &protos.Request{Id: c.ID})
+	return sc, err
 }
 
 // Unsubscribe unsubscribes to message from the gRPC server

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	longlivedgrpc "longlivedgprc"
 	"net"
 	"os"
 	"strings"
@@ -195,6 +196,10 @@ type subscribe struct {
 
 // Subscribe handles a subscribe request from a client
 func (s *Server) Subscribe(request *protos.Request, stream protos.Longlived_SubscribeServer) error {
+	peerAddr := longlivedgrpc.GetPeerAddr(stream.Context())
+	realAddr := longlivedgrpc.GetRealAddr(stream.Context())
+	log.Printf("Subscribed, serverAddr: %q, peerAddr: %q, realAddr: %q", s.Address, peerAddr, realAddr)
+
 	// Handle subscribe request
 	log.Printf("Received subscribe request from ID: %s", request.Id)
 
@@ -216,14 +221,20 @@ func (s *Server) Subscribe(request *protos.Request, stream protos.Longlived_Subs
 }
 
 // NotifyReceived handles a NotifyReceived request from a client
-func (s *Server) NotifyReceived(_ context.Context, request *protos.Request) (*protos.Response, error) {
-	log.Printf("NotifyReceived: %s", request.Id)
+func (s *Server) NotifyReceived(ctx context.Context, request *protos.Request) (*protos.Response, error) {
+	peerAddr := longlivedgrpc.GetPeerAddr(ctx)
+	realAddr := longlivedgrpc.GetRealAddr(ctx)
+	log.Printf("NotifyReceived: %q, serverAddr: %q, peerAddr: %q, realAddr: %q", s.Address, request.Id, peerAddr, realAddr)
 	return &protos.Response{Data: fmt.Sprintf("NotifyReceived: %s", request.Id)}, nil
 }
 
 // Unsubscribe handles a unsubscribe request from a client
 // Note: this function is not called but it here as an example of an unary RPC for unsubscribing clients
-func (s *Server) Unsubscribe(_ context.Context, request *protos.Request) (*protos.Response, error) {
+func (s *Server) Unsubscribe(ctx context.Context, request *protos.Request) (*protos.Response, error) {
+	peerAddr := longlivedgrpc.GetPeerAddr(ctx)
+	realAddr := longlivedgrpc.GetRealAddr(ctx)
+	log.Printf("Unsubscribe: %q, serverAddr: %q, peerAddr: %q, realAddr: %q", s.Address, request.Id, peerAddr, realAddr)
+
 	v, ok := s.subscribers.Load(request.Id)
 	if !ok {
 		return nil, fmt.Errorf("failed to load subscriber key: %s", request.Id)
