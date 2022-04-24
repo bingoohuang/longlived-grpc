@@ -42,7 +42,7 @@ Note that this was tested on protoc version: `libprotoc 3.17.3`
 ## Running the server
 
 ```sh
-$ longlived-grpc -v --addr :7070,:7080,:7090 -mode server
+$ longlivedgrpc -v --addr :7070,:7080,:7090 -mode server
 2022-04-23 16:12:08.036 [INFO ] 52620 --- [1    ] [-]  : log file created: /Users/bingoo/logs/longlived-grpc/longlived-grpc.log
 2022-04-23 16:12:08.037 [INFO ] 52620 --- [20   ] [-]  : Starting mock data generation
 2022-04-23 16:12:08.037 [INFO ] 52620 --- [24   ] [-]  : Starting mock data generation
@@ -66,7 +66,8 @@ $ longlived-grpc -v --addr :7070,:7080,:7090 -mode server
 ## Running the client(s)
 
 ```sh
-$ 2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : log file created: /Users/bingoo/logs/longlived-grpc/longlived-grpc.log
+$ longlivedgrpc -v --addr :7070,:7080,:7090 -mode client -p 7270 
+2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : log file created: /Users/bingoo/logs/longlived-grpc/longlived-grpc.log
 2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : static resolver: :7070,:7080,:7090
 2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : static resolved: [localhost:7070 localhost:7080 localhost:7090]
 2022-04-23 16:24:41.576 [INFO ] 53744 --- [24   ] [-]  : ListenAndServe rest server at :7270

@@ -1,4 +1,4 @@
-module longlived-gprc
+module longlivedgprc
 
 go 1.18
 

@@ -5,13 +5,15 @@ import (
 	"fmt"
 	"io"
 	"log"
-	longlived_grpc "longlived-gprc"
-	"longlived-gprc/protos"
-	_ "longlived-gprc/resolver"
+	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"longlivedgprc"
+	"longlivedgprc/protos"
+	_ "longlivedgprc/resolver"
 
 	"google.golang.org/grpc/peer"
 
@@ -42,20 +44,24 @@ func clientRestHandle(addr string) gin.HandlerFunc {
 			n := longlived_grpc.QueryInt(g, "n", 1)
 			clientIDs := make([]string, n)
 			for i := 0; i < n; i++ {
-				client := startClients(ctx, clientContainer)
-				stoppers.Add(client)
-				clientIDs[i] = client.GetID()
-
+				c := startClients(ctx, clientContainer)
+				stoppers.Add(c)
+				clientIDs[i] = c.GetID()
 			}
 			g.JSON(200, Rsp{Status: 200, Message: "OK", Data: H{"clientID": clientIDs}})
 		case "notify":
 			notify(g, clientContainer, ctx)
 		case "stop":
 			clientID := g.Query("id")
+			if clientID == "all" {
+				ids := stoppers.DeleteAllClients()
+				g.JSON(200, Rsp{Status: 200, Message: "stop all clients", Data: H{"clientIds": ids}})
+				return
+			}
 			if _, ok := stoppers.DeleteClient(clientID); ok {
-				g.JSON(200, Rsp{Status: 200, Message: "stop and deleted", Data: H{"clientID": clientID}})
+				g.JSON(200, Rsp{Status: 200, Message: "stop and deleted", Data: H{"clientId": clientID}})
 			} else {
-				g.JSON(200, Rsp{Status: 404, Message: "client not found", Data: H{"clientID": clientID}})
+				g.JSON(200, Rsp{Status: 404, Message: "client not found", Data: H{"clientId": clientID}})
 			}
 		default:
 			g.JSON(404, Rsp{Status: 404, Message: "unsupported path", Data: H{"path": g.Request.URL.Path}})
@@ -111,18 +117,17 @@ func (c *ClientContainer) Stop() {
 
 func (c *ClientContainer) AddWg() { c.wg.Add(1) }
 
-func startClients(ctx context.Context, clients *ClientContainer) *longlivedClient {
+func startClients(ctx context.Context, clients *ClientContainer) *client {
+	c := newClient(ctx, clients)
+
 	clients.AddWg()
-	client := newLonglivedClient(ctx, clients)
+	go c.Start()
 
-	// Dispatch client goroutine
-	go client.Start()
-
-	return client
+	return c
 }
 
-// longlivedClient holds the long-lived gRPC client fields
-type longlivedClient struct {
+// client holds the long-lived gRPC client fields
+type client struct {
 	ctx             context.Context
 	client          protos.LonglivedClient // client is the long-lived gRPC client
 	ID              string                 // id is the client ID used for subscribing
@@ -130,7 +135,7 @@ type longlivedClient struct {
 	clientContainer *ClientContainer
 }
 
-func (c *longlivedClient) Stop() {
+func (c *client) Stop() {
 	log.Printf("Unsubscribe client ID: %s", c.ID)
 	response, err := c.client.Unsubscribe(c.ctx, &protos.Request{Id: c.ID})
 	if err != nil {
@@ -142,13 +147,13 @@ func (c *longlivedClient) Stop() {
 	c.cancelF()
 }
 
-func (c *longlivedClient) Mode() Mode    { return ModeClient }
-func (c *longlivedClient) GetID() string { return c.ID }
+func (c *client) Mode() Mode    { return ModeClient }
+func (c *client) GetID() string { return c.ID }
 
-// newLonglivedClient creates a new client instance
-func newLonglivedClient(ctx context.Context, clientContainer *ClientContainer) *longlivedClient {
+// newClient creates a new client instance
+func newClient(ctx context.Context, clientContainer *ClientContainer) *client {
 	ctx, cancelF := context.WithCancel(ctx)
-	return &longlivedClient{
+	return &client{
 		ctx:             ctx,
 		cancelF:         cancelF,
 		clientContainer: clientContainer,
@@ -158,19 +163,19 @@ func newLonglivedClient(ctx context.Context, clientContainer *ClientContainer) *
 }
 
 // Subscribe subscribes to message from the gRPC server
-func (c *longlivedClient) Subscribe() (protos.Longlived_SubscribeClient, error) {
+func (c *client) Subscribe() (protos.Longlived_SubscribeClient, error) {
 	log.Printf("Subscribing client ID %s", c.ID)
 	return c.client.Subscribe(c.ctx, &protos.Request{Id: c.ID})
 }
 
 // Unsubscribe unsubscribes to message from the gRPC server
-func (c *longlivedClient) Unsubscribe() error {
+func (c *client) Unsubscribe() error {
 	log.Printf("Unsubscribing client ID %s", c.ID)
 	_, err := c.client.Unsubscribe(c.ctx, &protos.Request{Id: c.ID})
 	return err
 }
 
-func (c *longlivedClient) Start() {
+func (c *client) Start() {
 	defer c.clientContainer.wg.Done()
 
 	var err error
@@ -179,9 +184,10 @@ func (c *longlivedClient) Start() {
 
 	for c.ctx.Err() == nil {
 		if stream == nil {
-			if stream, err = c.Subscribe(); err != nil {
+			stream, err = c.Subscribe()
+			if err != nil {
 				log.Printf("Failed to subscribe: %v", err)
-				sleep(c.ctx, 5*time.Second)
+				Sleep(c.ctx, 5*time.Second)
 				continue // Retry on failure
 			}
 		}
@@ -196,7 +202,7 @@ func (c *longlivedClient) Start() {
 			log.Printf("Failed to receive message: %v", err)
 			// Clearing the stream will force the client to resubscribe on next iteration
 			stream = nil
-			sleep(c.ctx, 5*time.Second)
+			Sleep(c.ctx, 5*time.Second)
 			continue // Retry on failure
 		}
 
@@ -207,8 +213,10 @@ func (c *longlivedClient) Start() {
 	log.Printf("Client ID %s exited", c.ID)
 }
 
-// sleep is used to give the server time to unsubscribe the client and reset the stream
-func sleep(ctx context.Context, d time.Duration) {
+// Sleep is used to give the server time to unsubscribe the client and reset the stream
+func Sleep(ctx context.Context, d time.Duration) {
+	time.Sleep(d + time.Duration(rand.Int()%1000)*time.Microsecond)
+
 	select {
 	case <-ctx.Done():
 	case <-time.After(d):

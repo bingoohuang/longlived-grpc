@@ -16,7 +16,8 @@ func init() {
 type StaticBuilder struct{}
 
 func (sb *StaticBuilder) Build(target resolver.Target, cc resolver.ClientConn,
-	opts resolver.BuildOptions) (resolver.Resolver, error) {
+	opts resolver.BuildOptions,
+) (resolver.Resolver, error) {
 	// use info in target to access naming service
 	// parse the target.endpoint
 	// resolver.Target{Scheme:"static", Authority:"", Endpoint:"localhost:5051,localhost:5052,localhost:5053"}
@@ -60,6 +61,5 @@ func (r *StaticResolver) doResolve() {
 		}
 	}
 
-	newState := resolver.State{Addresses: addrs}
-	r.cc.UpdateState(newState)
+	r.cc.UpdateState(resolver.State{Addresses: addrs})
 }

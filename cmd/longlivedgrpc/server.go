@@ -4,12 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"longlived-gprc/protos"
 	"net"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"longlivedgprc/protos"
 
 	"github.com/gin-gonic/gin"
 	"github.com/segmentio/ksuid"
@@ -26,6 +27,18 @@ func (s Stoppers) Stop() {
 	for _, st := range s.Values {
 		st.Stop()
 	}
+}
+
+func (s *Stoppers) DeleteAllClients() (ids []string) {
+	for i, st := range s.Values {
+		if st.Mode() == ModeClient {
+			ids = append(ids, st.GetID())
+			st.Stop()
+			s.Values = append(s.Values[:i], s.Values[i+1:]...)
+		}
+	}
+
+	return
 }
 
 func (s *Stoppers) DeleteClient(id string) (Stopper, bool) {
@@ -106,7 +119,7 @@ type Stopper interface {
 	Stop()
 }
 
-type LonglivedServer struct {
+type Server struct {
 	ctx     context.Context
 	cancelF context.CancelFunc
 
@@ -117,14 +130,14 @@ type LonglivedServer struct {
 	Address string
 }
 
-func (s *LonglivedServer) GetID() string { return s.ID }
-func (s *LonglivedServer) Mode() Mode    { return ModeServer }
-func (s *LonglivedServer) Stop() {
+func (s *Server) GetID() string { return s.ID }
+func (s *Server) Mode() Mode    { return ModeServer }
+func (s *Server) Stop() {
 	s.cancelF()
 	s.Server.Stop()
 }
 
-func (s *LonglivedServer) Start() {
+func (s *Server) Start() {
 	// Start sending data to subscribers
 	go s.mockDataGenerator()
 
@@ -155,16 +168,15 @@ func IsEnvEnabled(name string) bool {
 	return !(s == "0" || s == "off" || s == "no")
 }
 
-func startServer(address string) *LonglivedServer {
+func startServer(address string) *Server {
 	grpcServer := grpc.NewServer([]grpc.ServerOption{}...)
 	ctx, cancelF := context.WithCancel(context.Background())
-	server := &LonglivedServer{ctx: ctx, cancelF: cancelF, Address: address, Server: grpcServer, ID: ksuid.New().String()}
+	server := &Server{ctx: ctx, cancelF: cancelF, Address: address, Server: grpcServer, ID: ksuid.New().String()}
 
 	protos.RegisterLonglivedServer(grpcServer, server)
 	if IsEnvEnabled("GRPC_REFLECTION") {
 		reflection.Register(grpcServer)
 	}
-
 	if IsEnvEnabled("GRPC_CHANNELZ") {
 		service.RegisterChannelzServiceToServer(server)
 	}
@@ -179,7 +191,7 @@ type subscribe struct {
 }
 
 // Subscribe handles a subscribe request from a client
-func (s *LonglivedServer) Subscribe(request *protos.Request, stream protos.Longlived_SubscribeServer) error {
+func (s *Server) Subscribe(request *protos.Request, stream protos.Longlived_SubscribeServer) error {
 	// Handle subscribe request
 	log.Printf("Received subscribe request from ID: %s", request.Id)
 
@@ -201,14 +213,14 @@ func (s *LonglivedServer) Subscribe(request *protos.Request, stream protos.Longl
 }
 
 // NotifyReceived handles a NotifyReceived request from a client
-func (s *LonglivedServer) NotifyReceived(_ context.Context, request *protos.Request) (*protos.Response, error) {
+func (s *Server) NotifyReceived(_ context.Context, request *protos.Request) (*protos.Response, error) {
 	log.Printf("NotifyReceived: %s", request.Id)
 	return &protos.Response{Data: fmt.Sprintf("NotifyReceived: %s", request.Id)}, nil
 }
 
 // Unsubscribe handles a unsubscribe request from a client
 // Note: this function is not called but it here as an example of an unary RPC for unsubscribing clients
-func (s *LonglivedServer) Unsubscribe(_ context.Context, request *protos.Request) (*protos.Response, error) {
+func (s *Server) Unsubscribe(_ context.Context, request *protos.Request) (*protos.Response, error) {
 	v, ok := s.subscribers.Load(request.Id)
 	if !ok {
 		return nil, fmt.Errorf("failed to load subscriber key: %s", request.Id)
@@ -227,11 +239,11 @@ func (s *LonglivedServer) Unsubscribe(_ context.Context, request *protos.Request
 	return &protos.Response{}, nil
 }
 
-func (s *LonglivedServer) mockDataGenerator() {
+func (s *Server) mockDataGenerator() {
 	log.Printf("Starting mock data generation")
 	defer log.Printf("Stopped mock data generation")
 	for s.ctx.Err() == nil {
-		sleep(s.ctx, time.Second)
+		Sleep(s.ctx, 3*time.Second)
 
 		// A list of clients to unsubscribe in case of error
 		var unsubscribe []string
