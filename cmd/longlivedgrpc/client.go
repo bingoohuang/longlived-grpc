@@ -218,7 +218,7 @@ func (c *client) Start() {
 
 // Sleep is used to give the server time to unsubscribe the client and reset the stream
 func Sleep(ctx context.Context, d time.Duration) {
-	time.Sleep(d + time.Duration(rand.Int()%1000)*time.Microsecond)
+	d += time.Duration(rand.Int()%1000) * time.Microsecond
 
 	select {
 	case <-ctx.Done():
