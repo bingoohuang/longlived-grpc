@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"io"
 	"log"
-	longlivedgrpc "longlivedgprc"
 	"math/rand"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"longlivedgprc/protos"
-	_ "longlivedgprc/resolver"
+	longlivedgrpc "github.com/bingoohuang/longlivedgprc"
+
+	"github.com/bingoohuang/longlivedgprc/protos"
+	_ "github.com/bingoohuang/longlivedgprc/resolver"
 
 	"google.golang.org/grpc/peer"
 

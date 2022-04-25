@@ -1,11 +1,14 @@
-module longlivedgprc
+module github.com/bingoohuang/longlivedgprc
 
 go 1.18
 
 require (
 	github.com/bingoohuang/gg v0.0.0-20220420132852-a92417df3205
 	github.com/bingoohuang/golog v0.0.0-20220419071623-16dcc2aaef54
+	github.com/fullstorydev/grpcurl v1.8.6
 	github.com/gin-gonic/gin v1.7.7
+	github.com/gorilla/mux v1.7.3
+	github.com/jhump/protoreflect v1.12.0
 	github.com/segmentio/ksuid v1.0.4
 	golang.org/x/exp v0.0.0-20220414153411-bcd21879b8fd
 	google.golang.org/grpc v1.46.0
@@ -30,7 +33,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220321153916-2c7772ba3064 // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	golang.org/x/sys v0.0.0-20220319134239-a9b59b0215f8 // indirect
-	golang.org/x/text v0.3.6 // indirect
+	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013 // indirect
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 )
