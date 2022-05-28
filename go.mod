@@ -3,7 +3,7 @@ module github.com/bingoohuang/longlivedgprc
 go 1.18
 
 require (
-	github.com/bingoohuang/gg v0.0.0-20220420132852-a92417df3205
+	github.com/bingoohuang/gg v0.0.0-20220527075033-53c4f07e0da6
 	github.com/bingoohuang/golog v0.0.0-20220419071623-16dcc2aaef54
 	github.com/fullstorydev/grpcurl v1.8.6
 	github.com/gin-gonic/gin v1.7.7
