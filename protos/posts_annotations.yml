@@ -1,0 +1,18 @@
+type: google.api.Service
+config_version: 3
+title: 'Posts API'
+
+http:
+  rules:
+    - selector: sma.Posts.CreatePost
+      post: '/v1/posts'
+      body: '*'
+    - selector: sma.Posts.UpdatePost
+      patch: '/v1/posts/{post_id}'
+      body: "post"
+    - selector: sma.Posts.ShowPost
+      get: '/v1/posts/{post_id}'
+    - selector: sma.Posts.ListPosts
+      get: '/v1/users/{user_id}/posts'
+    - selector: sma.Posts.DeletePost
+      delete: '/v1/posts/{post_id}'

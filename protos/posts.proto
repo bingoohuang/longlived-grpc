@@ -1,0 +1,167 @@
+syntax = 'proto3';
+
+package sma;
+
+option go_package="src/go/sma";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/field_mask.proto";
+
+service Posts {
+  // Create Post
+  //
+  // Create a new post
+  rpc CreatePost(CreatePostReq) returns (Post);
+
+  // Update Post
+  //
+  // Updates a specific post
+  rpc UpdatePost(UpdatePostReq) returns (Post);
+
+  // Show Post
+  //
+  // Show a specific post
+  rpc ShowPost(PostIdReq) returns (Post);
+
+  // ListPosts
+  //
+  // Returns a collection of posts for a given user
+  rpc ListPosts(ListPostsReq) returns (ListPostsResp);
+
+  // DeletePost
+  //
+  // Deletes a specific post
+  rpc DeletePost(PostIdReq) returns (EmptyResp);
+}
+
+// CreatePostReq
+//
+// The request message to create a post
+message CreatePostReq {
+  // The title for the Post
+  string title = 1;
+  // The description for the Post
+  string description = 2;
+  // The id of the user who created the Post
+  string user_id = 3;
+  // The collection of the Posts's media files
+  repeated string media_ids = 4;
+  // The schedule date for the post
+  google.protobuf.Timestamp scheduled_at = 5;
+}
+
+// UpdatePostReq
+//
+// The request message to update a post
+message UpdatePostReq {
+  // Field mask for a post
+  google.protobuf.FieldMask update_mask = 1;
+  // The id for the post
+  string post_id = 2;
+  // The updatable fields that are allowed to be updated
+  UpdatePost post = 3;
+}
+
+// UpdatePost
+//
+// The message that keeps track of the permitted attributes
+// to be updated for a post
+message UpdatePost {
+  // The title for the post
+  string title = 1;
+  // The description for the post
+  string description = 2;
+  // The collection of the Posts's media files
+  repeated string media_ids = 3;
+  // The schedule date for the post
+  google.protobuf.Timestamp scheduled_at = 4;
+}
+
+// PostIdReq
+//
+// The request message to show a post
+message PostIdReq {
+  // The id for the post
+  string post_id = 1;
+}
+
+// ListPostsReq
+//
+// The request message to list the collection of posts for a given user
+message ListPostsReq {
+  // The id for the user
+  string user_id = 1;
+  // Search query string
+  string s = 2;
+  // Requested page
+  string page = 3;
+  // Requested number of items per page
+  // Default: 20
+  // Max: 50
+  string per_page = 4;
+  // Filtered collection by status
+  Filters filter = 5;
+}
+
+// ListPostsResp
+//
+// The response message to list the collection of posts for a given user
+message ListPostsResp {
+  // The collection of posts
+  repeated Post posts = 1;
+  // Page info
+  PageInfo page_info = 2;
+}
+
+message PageInfo {
+  // The current page
+  uint64 page = 1;
+  // The page size
+  uint64 page_size = 2;
+  // The total items
+  uint64 total_items = 3;
+  // The total pages
+  uint64 total_pages = 4;
+}
+
+// Post
+//
+// The message that represents a post
+message Post {
+  // The id for the Post
+  string id = 1;
+  // The title for the Post
+  string title = 2;
+  // The description for the Post
+  string description = 3;
+  // The is of the user who created the Post
+  string user_id = 4;
+  // The current status of the Post
+  PostStatus status = 5;
+  // The date when the Post was created
+  google.protobuf.Timestamp created_at = 6;
+  // The date when the Post was updated
+  google.protobuf.Timestamp updated_at = 7;
+}
+
+// EmptyResp
+//
+// An empty response
+message EmptyResp {
+}
+
+enum PostStatus {
+  POST_STATUS_UNSPECIFIED = 0;
+  POST_STATUS_DRAFT = 1;
+  POST_STATUS_SCHEDULED = 2;
+  POST_STATUS_ARCHIVED = 3;
+  POST_STATUS_ACTIVE = 4;
+}
+
+enum Filters {
+  FILTER_UNESPECIFIED = 0;
+  FILTER_DRAFT = 1;
+  FILTER_SCHEDULED = 2;
+  FILTER_ARCHIVED = 3;
+  FILTER_ACTIVE = 4;
+}
