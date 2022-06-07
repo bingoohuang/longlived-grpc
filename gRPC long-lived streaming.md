@@ -5,6 +5,7 @@ In this blog post I’ll explore a way to implement gRPC long-lived streaming. U
 If you’re reading this I assume you are already familiar with gRPC. But if you still feel like you need an introduction, please leave a comment below and I will put together a gRPC introductory post as well.
 
 ## What is considered a “long” RPC session?
+
 A typical RPC is an immediate request-response mechanism. When referring to a long-lived RPC, some of you might have a different timeframe in mind.
 
 A long-lived RPC is usually greater in an order of magnitude from a regular RPC call. For example – it can last minutes, hours, days and so on, depending on your use case.
@@ -12,6 +13,7 @@ A long-lived RPC is usually greater in an order of magnitude from a regular RPC 
 Before diving into the implementation let’s first consider the use cases for a long-lived RPC stream:
 
 ## Long-lived RPC use cases
+
 Now let’s highlight some of the main use cases for a long-lived RPC. Some of these might be different names for the same use case, but I wanted to make sure I cover the most common ones:
 
 - Watch API – where you want to get notifications (similar to the Kubernetes watch API mechanism) when an API object is modified.
@@ -21,6 +23,7 @@ Now let’s highlight some of the main use cases for a long-lived RPC. Some of t
 Note that all of the use cases I’ve mentioned above could have been solved by using polling. But if you’re reading this I guess that polling is something you would want to avoid. By using a long-lived stream you can have immediate response and reduce the latency of events. Think of the RPC usage as a “pipe” – it is set up and ready to handle events at any given time.
 
 ## gRPC failure handling
+
 Some of the perks of using gRPC is that it handles some mechanisms that will help you to handle failures. Some of which are:
 
 - Connection Backoff – When we do a connection to a backend which fails, it is typically desirable to not retry immediately (to avoid flooding the network or the server with requests) and instead do some form of exponential backoff.
@@ -29,7 +32,8 @@ Some of the perks of using gRPC is that it handles some mechanisms that will hel
 This does not mean to imply that you won’t need to handle cases where the network fails. You should definitely take that into consideration when designing a production grade system.
 
 ## What are we going to build?
-All of the code used here is available in the following GitHub repository: https://github.com/omri86/longlived-grpc
+
+All of the code used here is available in the following [GitHub repository](https://github.com/omri86/longlived-grpc)
 
 For the sake of keeping everything simple and focus on how to utilize gRPC – we are going to create a basic application which consists of a single server and multiple clients. I chose to work with a arbitrary number of 10 clients, but as you will see later this scales easily:
 
@@ -49,7 +53,6 @@ Below is the general flow I had in mind while building this application. Note th
 gRPC application flow
 
 ![image](https://user-images.githubusercontent.com/1940588/158938064-8e03f12a-923e-412d-b487-9e0468da4e37.png)
-
 
 A few notes:
 
@@ -88,7 +91,7 @@ The proto file also includes an Unsubscribe unary RPC. This function won’t be 
 rpc Unsubscribe(Request) returns (Response) {}
 ```
 
-## Creating the server
+
 See the full server file here: server.go
 
 First off let’s take a look at the server struct:
@@ -112,6 +115,7 @@ type sub struct {
   - A channel to signal closing the stream
 
 ## Server subscribe method
+
 In order to implement the gRPC server interface defined in the proto file you need to implement the following method:
 
 ```go
@@ -123,6 +127,7 @@ This is a method that has a separate context for each incoming subscribe request
 An important note on this function is that the stream will be closed once this function returns. As long as the client is subscribed – this function scope needs to be kept alive.
 
 ## Subscribing a client
+
 Since this function will be running as long as the client is subscribed in a separate goroutine, you need a way to access it’s stream in order to send data to the subscribed client.
 
 You will also need a way to signal this goroutine to exit in case the stream is closing.
@@ -154,7 +159,8 @@ for {
 }
 ```
 
-##Creating the client
+## Creating the client
+
 See the full client code here: client.go
 
 First let’s go over the client struct:
@@ -172,6 +178,7 @@ type longlivedClient struct {
 - As explained on the server side, clients are subscribing with their unique ID. The id field is the one that holds this ID.
 
 ## Client subscribe method
+
 In order to subscribe to server updates, the client must call the gRPC Subscribe() function. This is done as follows:
 
 ```go
@@ -181,7 +188,6 @@ c.client.Subscribe(context.Background(), &protos.Request{Id: c.id})
 - The context can be set to carry deadlines, cancellation signals and so on. Since this is out of the scope of this blog post you can read more about it here.
 - The second value passed to the server is the client Request which holds the client id.
 
-## Starting the client
 The stream is used to stream data from the server to the client after subscribing:
 
 ```go
@@ -219,9 +225,11 @@ log.Printf("Client ID %d got response: %q", c.id, response.Data)
 ```
 
 ## Creating the actual application
+
 Now that the foundations are clear let’s run our application and see how it actually works.
 
 ## Server main function
+
 First thing you need to do is to init the server:
 
 ```go
@@ -397,8 +405,7 @@ Feel free to follow me on twitter for regular updates and please do comment belo
 
 See you on the next one!
 
-## References and credits:
+## References and credits
 
-The official gRPC documentation and examples: https://grpc.io/docs/languages/go/basics/
-
-This great talk by Eric Anderson is a place to start when exploring ideas presented in this blog post: https://www.youtube.com/watch?v=Naonb2XD_2Q&t=4s
+- [The official gRPC documentation and examples](https://grpc.io/docs/languages/go/basics/)
+- This great talk by Eric Anderson is a place to start when exploring ideas presented in [this blog post](https://www.youtube.com/watch?v=Naonb2XD_2Q&t=4s)
