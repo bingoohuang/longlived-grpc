@@ -26,11 +26,43 @@ gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一�
 4. 双向流RPC(Bidirectional-Streaming RPC)：多请求，多应答
    ![image](https://user-images.githubusercontent.com/1940588/158950837-b605bdc3-8cca-48b2-9362-21766478a899.png)
 
+## a little comparison with REST API
+
+REST|gRPC
+---|---
+JSON | Protocol Buffers 
+HTTP 1.1 | HTTP 2.0
+Unary (request response model) | Streaming
+Client -> Server | Bi Directional
+GET/POST/PUT/DELETE ... | Free Degisn
+
+## HTTP 2.0 (h2) features
+
+### Multiplexing
+
+Client makes multiple requests in the single TCP connection. The Server will respond to the request by the use of Stream ID which is unique for each request in the same connection.
+
+![Multiplexing](_assets/2022-06-11-10-55-35.png)
+
+### Compression (Headers & Data)
+
+Multiplexing makes the HTTP 2 to compress the headers. In HTTP 1.1 we can compress the data but the headers are used to identify the request so the Headers are not compressed but in HTTP 2 we can identify the request with the help of Stream ID so we can compress the headers.
+
+### Server Push — HTTP/2 with push (this is not enabled by default)
+
+Configuring the Server smart enough to push all the needed files when the Client request for one file. Simply, make the Server to push all the files related to the file requested by the Client.
+
+Note: Also need to configure the Clients to receive the multiple responses for the single request.
+
+### Secure by default
+
+HTTP 2 in short h2 uses TLS encryption by default.
+
 ## Prequirements
 
 - [protoc](https://github.com/google/protobuf)
 - [protoc-gen-go](https://github.com/golang/protobuf/tree/master/protoc-gen-go)
-    - `$ go get -u github.com/golang/protobuf/protoc-gen-go`
+  - `$ go get -u github.com/golang/protobuf/protoc-gen-go`
 
 ## Instructions
 
