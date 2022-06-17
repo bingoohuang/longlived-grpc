@@ -5,16 +5,20 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net"
 
-	sgRPC "github.com/bingoohuang/longlivedgprc/protos/simple/testgrpc"
+	longlivedgrpc "github.com/bingoohuang/longlivedgprc"
+	protos "github.com/bingoohuang/longlivedgprc/protos/simple/testgrpc"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/channelz/service"
+	"google.golang.org/grpc/reflection"
 )
 
 const socket = "127.0.0.1:2008"
 
 type Server struct {
-	sgRPC.SimpleServiceServer
+	protos.SimpleServiceServer
 }
 
 func main() {
@@ -24,66 +28,75 @@ func main() {
 	}
 	log.Println("Listening at ", socket)
 	s := grpc.NewServer()
-	sgRPC.RegisterSimpleServiceServer(s, &Server{}) // registering our grpc server with our grpc service.
+	protos.RegisterSimpleServiceServer(s, &Server{}) // registering our grpc server with our grpc service.
+	if longlivedgrpc.IsEnvEnabled("GRPC_REFLECTION") {
+		reflection.Register(s)
+	}
+	if longlivedgrpc.IsEnvEnabled("GRPC_CHANNELZ") {
+		service.RegisterChannelzServiceToServer(s)
+	}
 	if err := s.Serve(lisn); err != nil {
 		log.Fatalln("Errored while Serving : ", socket, err)
 	}
 }
 
-func (s *Server) RPCRequest(ctx context.Context, req *sgRPC.SimpleRequest) (*sgRPC.SimpleResponse, error) {
+func (s *Server) RPCRequest(ctx context.Context, req *protos.SimpleRequest) (*protos.SimpleResponse, error) {
 	log.Println("Unary request")
-	log.Printf("Request - %v\n", req)
-	response := &sgRPC.SimpleResponse{Response: "Here is your response"}
-	log.Printf("Response - %v\n", response)
+	log.Printf("Request - %+v", req)
+	response := &protos.SimpleResponse{Response: "Here is your response", ResponseId: math.MaxUint64}
+	log.Printf("Response - %+v", response)
 	return response, nil
 }
 
-func (s *Server) ClientStreaming(stream sgRPC.SimpleService_ClientStreamingServer) error {
+func (s *Server) ClientStreaming(stream protos.SimpleService_ClientStreamingServer) error {
 	log.Println("ClientStreaming RPC")
+	var responseID uint64 = math.MaxUint64
 	for {
 		req, err := stream.Recv()
 		if err == io.EOF {
-			response := &sgRPC.SimpleResponse{Response: "Here is your response"}
-			log.Printf("Response - %v\n", response)
+			response := &protos.SimpleResponse{Response: "Here is your response", ResponseId: responseID}
+			log.Printf("Response - %+v", response)
+			responseID--
 			stream.SendAndClose(response)
 			break
 		}
 		if err != nil {
 			log.Fatalln(err)
 		}
-		log.Printf("Request - %v\n", req)
+		log.Printf("Request - %+v", req)
 	}
 	return nil
 }
 
-func (s *Server) ServerStreaming(req *sgRPC.SimpleRequest, stream sgRPC.SimpleService_ServerStreamingServer) error {
+func (s *Server) ServerStreaming(req *protos.SimpleRequest, stream protos.SimpleService_ServerStreamingServer) error {
 	log.Println("ServerStreaming RPC")
-	log.Printf("Request- %v", req)
-	for i := 1; i < 10; i++ {
+	log.Printf("Request- %+v", req)
+	var responseID uint64 = math.MaxUint64
+	for i := uint64(0); i < 10; i++ {
 		res := fmt.Sprintf("Here is the response %d", i)
-		log.Printf("Response - %v", res)
-		stream.Send(&sgRPC.SimpleResponse{Response: res})
+		rsp := &protos.SimpleResponse{Response: res, ResponseId: responseID - i}
+		log.Printf("Response - %+v", rsp)
+		stream.Send(rsp)
 	}
 
 	return nil
 }
 
-func (s *Server) StreamingBiDirectional(stream sgRPC.SimpleService_StreamingBiDirectionalServer) error {
+func (s *Server) StreamingBiDirectional(stream protos.SimpleService_StreamingBiDirectionalServer) error {
 	log.Println("StreamingBiDirectional RPC")
-
 	for {
 		msg, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
 		if err != nil {
-			log.Println("Errored in stream Recv", err)
+			if err != io.EOF {
+				log.Println("Errored in stream Recv", err)
+			}
 			break
 		}
-		log.Printf("Request - %v", msg)
+		log.Printf("Request - %+v", msg)
 		r := fmt.Sprintf("Response for your request - %v", msg.RequestNeed)
-		log.Printf("Response - %v\n", r)
-		stream.Send(&sgRPC.SimpleResponse{Response: r})
+		rsp := &protos.SimpleResponse{Response: r, ResponseId: msg.RequestId - 1}
+		stream.Send(rsp)
+		log.Printf("Response - %+v", rsp)
 	}
 
 	return nil

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 
 	sgRPC "github.com/bingoohuang/longlivedgprc/protos/simple/testgrpc"
 	"google.golang.org/grpc"
@@ -29,7 +30,7 @@ func main() {
 	// Client streaming
 	makeClientStreaming(client)
 
-	//Server Streaming
+	// Server Streaming
 	makeServerStreaming(client)
 
 	// Bi-Directional
@@ -38,11 +39,11 @@ func main() {
 
 func makeUnaryRequest(c sgRPC.SimpleServiceClient) {
 	log.Println("Making Unary Request")
-	req := &sgRPC.SimpleRequest{RequestNeed: "To test!"}
-	log.Printf("Request - %v\n", req)
+	req := &sgRPC.SimpleRequest{RequestNeed: "To test!", RequestId: math.MaxUint64}
+	log.Printf("Request - %+v", req)
 	res, err := c.RPCRequest(context.Background(), req)
 	handleAndFatalError(err)
-	log.Printf("Response - %v\n", res)
+	log.Printf("Response - %+v", res)
 }
 
 func makeClientStreaming(c sgRPC.SimpleServiceClient) {
@@ -52,19 +53,20 @@ func makeClientStreaming(c sgRPC.SimpleServiceClient) {
 
 	for i := 1; i < 10; i++ {
 		req := fmt.Sprintf("Request number : %d", i)
-		log.Printf("Request - %v\n", req)
-		stream.Send(&sgRPC.SimpleRequest{RequestNeed: req})
+		r := &sgRPC.SimpleRequest{RequestNeed: req, RequestId: math.MaxUint64}
+		log.Printf("Request - %+v", r)
+		stream.Send(r)
 	}
 	response, err := stream.CloseAndRecv()
 	handleAndFatalError(err)
 
-	log.Printf("Response - %v\n", response)
+	log.Printf("Response - %+v", response)
 }
 
 func makeServerStreaming(c sgRPC.SimpleServiceClient) {
 	log.Println("Server Streaming")
-	req := &sgRPC.SimpleRequest{RequestNeed: "Need stream response"}
-	log.Printf("Request - %v\n", req)
+	req := &sgRPC.SimpleRequest{RequestNeed: "Need stream response", RequestId: math.MaxUint64}
+	log.Printf("Request - %+v", req)
 	serverStream, err := c.ServerStreaming(context.Background(), req)
 	handleAndFatalError(err)
 
@@ -75,7 +77,7 @@ func makeServerStreaming(c sgRPC.SimpleServiceClient) {
 		}
 		handleAndFatalError(err)
 
-		log.Printf("Response - %v\n", response)
+		log.Printf("Response - %+v", response)
 	}
 }
 
@@ -83,21 +85,21 @@ func makeBidirectional(c sgRPC.SimpleServiceClient) {
 	log.Println("Bi-Directional Streaming")
 	biStream, err := c.StreamingBiDirectional(context.Background())
 	handleAndFatalError(err)
+	defer biStream.CloseSend()
+	var id uint64 = math.MaxUint64
 
 	// here the communication sequence is completely depends on how the server is implemented.
 	// if the server is implemetend to give response to all the response at the end or
 	// one after another it all compeletely depends on the implementation
-	for i := 1; i < 11; i++ {
+	for i := uint64(0); i < 10; i++ {
 		req := fmt.Sprintf("My request %d", i)
-		log.Printf("Request - %v\n", req)
-		biStream.Send(&sgRPC.SimpleRequest{RequestNeed: req})
-		if i == 10 {
-			biStream.CloseSend()
-		}
+		r := &sgRPC.SimpleRequest{RequestNeed: req, RequestId: id - i}
+		log.Printf("Request - %+v", r)
+		biStream.Send(r)
 		reply, err := biStream.Recv()
 
 		handleAndPrintError(err)
-		log.Printf("Response - %v\n", reply)
+		log.Printf("Response - %+v", reply)
 	}
 }
 

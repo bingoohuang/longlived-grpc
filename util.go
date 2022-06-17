@@ -3,7 +3,9 @@ package longlivedgrpc
 import (
 	"context"
 	"net"
+	"os"
 	"strconv"
+	"strings"
 
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
@@ -11,6 +13,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/constraints"
 )
+
+func IsEnvEnabled(name string) bool {
+	s := strings.ToLower(os.Getenv(name))
+	return !(s == "0" || s == "off" || s == "no")
+}
 
 // GetRealAddr get real client ip
 func GetRealAddr(ctx context.Context) string {

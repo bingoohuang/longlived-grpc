@@ -4,10 +4,12 @@ option go_package = "simple/testgrpc";
 
 message SimpleRequest{
     string request_need = 1;
+    uint64 request_id = 2;
 }
 
 message SimpleResponse{
     string response = 1;
+    uint64 response_id = 2;
 }
 
 service SimpleService{

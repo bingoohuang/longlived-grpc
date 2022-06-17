@@ -30,7 +30,7 @@ gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一�
 
 REST|gRPC
 ---|---
-JSON | Protocol Buffers 
+JSON | Protocol Buffers
 HTTP 1.1 | HTTP 2.0
 Unary (request response model) | Streaming
 Client -> Server | Bi Directional
@@ -98,7 +98,7 @@ $ longlivedgrpc -v --addr :7070,:7080,:7090 -mode server
 ## Running the client(s)
 
 ```sh
-$ longlivedgrpc -v --addr :7070,:7080,:7090 -mode client -p 7270 
+$ longlivedgrpc -v --addr :7070,:7080,:7090 -mode client -p 7270
 2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : log file created: /Users/bingoo/logs/longlived-grpc/longlived-grpc.log
 2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : static resolver: :7070,:7080,:7090
 2022-04-23 16:24:41.575 [INFO ] 53744 --- [1    ] [-]  : static resolved: [localhost:7070 localhost:7080 localhost:7090]
@@ -178,10 +178,10 @@ $ gurl :7270/client/notify n==4 -pb -r
 
 ### Client API list
 
-3. `:7081/client/start` start a new grpc streaming call
-4. `:7081/client/stop?id=xxx` stop an existing grpc streaming call, use id=all to stop all clients.
-5. `:7081/client/list` list the existing grpc streaming calls
-6. `:7081/client/notify` do an invoke notify grpc call
+1. `:7081/client/start` start a new grpc streaming call
+1. `:7081/client/stop?id=xxx` stop an existing grpc streaming call, use id=all to stop all clients.
+1. `:7081/client/list` list the existing grpc streaming calls
+1. `:7081/client/notify` do an invoke notify grpc call
 
 ## channelzcli
 
@@ -274,7 +274,9 @@ Security:
   Model: none
 ```
 
-### https://github.com/fullstorydev/grpcurl
+## grpc test tools
+
+[fullstorydev/grpcurl](https://github.com/fullstorydev/grpcurl)
 
 ```sh
 $ grpcurl -plaintext localhost:7070 grpc.channelz.v1.Channelz/GetServers
@@ -401,8 +403,10 @@ $ grpcurl -plaintext localhost:7070 grpc.channelz.v1.Channelz/GetTopChannels
 }
 ```
 
-## [gusaul/grpcox](https://github.com/gusaul/grpcox)
+[gusaul/grpcox](https://github.com/gusaul/grpcox)
 
 Like Postman, but for gRPC: web based GUI client for gRPC Development Testing
 
 ![img.png](_assets/img.png)
+
+1. [ptg 💥Performance testing tool (Go), It is also a GUI gRPC client.](https://github.com/crossoverJie/ptg)

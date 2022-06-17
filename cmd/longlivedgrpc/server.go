@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"os"
-	"strings"
 	"sync"
 	"time"
 
@@ -168,21 +166,16 @@ func (s *Server) Start() {
 	}()
 }
 
-func IsEnvEnabled(name string) bool {
-	s := strings.ToLower(os.Getenv(name))
-	return !(s == "0" || s == "off" || s == "no")
-}
-
 func startServer(address string) *Server {
 	grpcServer := grpc.NewServer([]grpc.ServerOption{}...)
 	ctx, cancelF := context.WithCancel(context.Background())
 	server := &Server{ctx: ctx, cancelF: cancelF, Address: address, Server: grpcServer, ID: ksuid.New().String()}
 
 	protos.RegisterLonglivedServer(grpcServer, server)
-	if IsEnvEnabled("GRPC_REFLECTION") {
+	if longlivedgrpc.IsEnvEnabled("GRPC_REFLECTION") {
 		reflection.Register(grpcServer)
 	}
-	if IsEnvEnabled("GRPC_CHANNELZ") {
+	if longlivedgrpc.IsEnvEnabled("GRPC_CHANNELZ") {
 		service.RegisterChannelzServiceToServer(server)
 	}
 
