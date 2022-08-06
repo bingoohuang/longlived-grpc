@@ -28,29 +28,33 @@ gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一�
 
 ## a little comparison with REST API
 
-REST|gRPC
----|---
-JSON | Protocol Buffers
-HTTP 1.1 | HTTP 2.0
-Unary (request response model) | Streaming
-Client -> Server | Bi Directional
-GET/POST/PUT/DELETE ... | Free Degisn
+| REST                           | gRPC             |
+|--------------------------------|------------------|
+| JSON                           | Protocol Buffers |
+| HTTP 1.1                       | HTTP 2.0         |
+| Unary (request response model) | Streaming        |
+| Client -> Server               | Bi Directional   |
+| GET/POST/PUT/DELETE ...        | Free Degisn      |
 
 ## HTTP 2.0 (h2) features
 
 ### Multiplexing
 
-Client makes multiple requests in the single TCP connection. The Server will respond to the request by the use of Stream ID which is unique for each request in the same connection.
+Client makes multiple requests in the single TCP connection. The Server will respond to the request by the use of Stream
+ID which is unique for each request in the same connection.
 
 ![Multiplexing](_assets/2022-06-11-10-55-35.png)
 
 ### Compression (Headers & Data)
 
-Multiplexing makes the HTTP 2 to compress the headers. In HTTP 1.1 we can compress the data but the headers are used to identify the request so the Headers are not compressed but in HTTP 2 we can identify the request with the help of Stream ID so we can compress the headers.
+Multiplexing makes the HTTP 2 to compress the headers. In HTTP 1.1 we can compress the data but the headers are used to
+identify the request so the Headers are not compressed but in HTTP 2 we can identify the request with the help of Stream
+ID, so we can compress the headers.
 
 ### Server Push — HTTP/2 with push (this is not enabled by default)
 
-Configuring the Server smart enough to push all the needed files when the Client request for one file. Simply, make the Server to push all the files related to the file requested by the Client.
+Configuring the Server smart enough to push all the needed files when the Client request for one file. Simply, make the
+Server to push all the files related to the file requested by the Client.
 
 Note: Also need to configure the Clients to receive the multiple responses for the single request.
 
@@ -62,7 +66,7 @@ HTTP 2 in short h2 uses TLS encryption by default.
 
 - [protoc](https://github.com/google/protobuf)
 - [protoc-gen-go](https://github.com/golang/protobuf/tree/master/protoc-gen-go)
-  - `$ go get -u github.com/golang/protobuf/protoc-gen-go`
+    - `$ go get -u github.com/golang/protobuf/protoc-gen-go`
 
 ## Instructions
 
@@ -179,9 +183,9 @@ $ gurl :7270/client/notify n==4 -pb -r
 ### Client API list
 
 1. `:7081/client/start` start a new grpc streaming call
-1. `:7081/client/stop?id=xxx` stop an existing grpc streaming call, use id=all to stop all clients.
-1. `:7081/client/list` list the existing grpc streaming calls
-1. `:7081/client/notify` do an invoke notify grpc call
+2. `:7081/client/stop?id=xxx` stop an existing grpc streaming call, use id=all to stop all clients.
+3. `:7081/client/list` list the existing grpc streaming calls
+4. `:7081/client/notify` do an invoke notify grpc call
 
 ## channelzcli
 
@@ -275,6 +279,8 @@ Security:
 ```
 
 ## grpc test tools
+
+### grpcurl
 
 [fullstorydev/grpcurl](https://github.com/fullstorydev/grpcurl)
 
@@ -402,11 +408,20 @@ $ grpcurl -plaintext localhost:7070 grpc.channelz.v1.Channelz/GetTopChannels
   "end": true
 }
 ```
+### grpcox
 
 [gusaul/grpcox](https://github.com/gusaul/grpcox)
 
 Like Postman, but for gRPC: web based GUI client for gRPC Development Testing
 
 ![img.png](_assets/img.png)
+
+### wombat
+
+[wombat Cross platform gRPC client](https://github.com/rogchap/wombat)
+
+![img.png](_assets/wombat.png)
+
+## resources
 
 1. [ptg 💥Performance testing tool (Go), It is also a GUI gRPC client.](https://github.com/crossoverJie/ptg)
