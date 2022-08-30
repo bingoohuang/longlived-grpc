@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option go_package = "simple/testgrpc";
+option java_package = "simple.testgrpc";
+
+message SimpleRequest{
+    string request_need = 1;
+    uint64 request_id = 2;
+}
+
+message SimpleResponse{
+    string response = 1;
+    uint64 response_id = 2;
+}
+
+service SimpleService{
+    // unary RPC
+    rpc RPCRequest(SimpleRequest) returns (SimpleResponse);
+    // Server Streaming
+    rpc ServerStreaming(SimpleRequest) returns (stream SimpleResponse);
+    // Client Streaming
+    rpc ClientStreaming(stream SimpleRequest) returns (SimpleResponse);
+    // Bi-Directional Streaming
+    rpc StreamingBiDirectional(stream SimpleRequest) returns (stream SimpleResponse);
+}

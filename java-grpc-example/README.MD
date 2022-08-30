@@ -1,0 +1,189 @@
+# Java Grpc Demo
+
+## 代码生成
+
+1. 在 `src/main/proto` 下创建 `xxxx.proto` 定义
+2. 执行 `cd ./lib && mvn clean && mvn protobuf:compile && mvn protobuf:compile-custom`
+3. target 目录下生成了 Java 代码
+
+![img.png](protobuf-gen-result.png)
+
+## server 端
+
+启动 server
+
+新启动一个 item tab, 执行以下命令：
+
+```shell
+mvn clean package && java -jar ./server/target/server-0.0.1-SNAPSHOT.jar
+```
+
+## client 端
+
+启动 server
+
+新启动一个 item tab, 执行以下命令：
+
+```shell
+mvn clean package && java -jar ./client/target/client-0.0.1-SNAPSHOT.jar
+```
+
+## Grpc 的 4 四种通信模式
+
+### 简单RPC(Simple RPC)
+
+简单RPC(Simple RPC)：最简单的，也是最常用的 gRPC 通信模式，简单来说就是一请求一应答
+
+请求：
+
+```shell
+gurl :8080/client -pb
+```
+
+响应：
+
+```json
+{
+  "key": 1808610206099736466,
+  "value": "ACK :05msxdcrfnwgjvvf"
+}
+
+```
+
+### 服务端流RPC(Server-streaming RPC)
+
+服务端流RPC(Server-streaming RPC)：一请求，多应答
+
+请求：
+
+```shell
+gurl :8080/client/serverStreaming -pb
+```
+
+响应：
+
+```json
+[
+  {
+    "key": -7610799730980299718,
+    "value": "ACK : qcec95faayrf4dzn[0]"
+  },
+  {
+    "key": -7610799730980299718,
+    "value": "ACK : qcec95faayrf4dzn[1]"
+  }
+]
+```
+
+### 客户端流RPC(Client-streaming RPC)
+
+客户端流RPC(Client-streaming RPC)：多请求，一应答
+
+请求：
+
+```shell
+ gurl :8080/client/clientStreaming -pb
+```
+
+响应：
+
+```json
+{
+  "key": 3,
+  "value": "ACK :[1/3, 2/3, 3/3]"
+}
+
+```
+
+### 双向流RPC(Bidirectional-Streaming RPC)
+
+双向流RPC(Bidirectional-Streaming RPC)：多请求，多应答
+
+请求：
+
+```shell
+gurl :8080/client/streamingBiDirectional -pb
+```
+
+响应：
+
+```json
+[
+  {
+    "key": 1,
+    "value": "ACK : 请求原文 1/3 响应添加[0]"
+  },
+  {
+    "key": 1,
+    "value": "ACK : 请求原文 1/3 响应添加[1]"
+  },
+  {
+    "key": 2,
+    "value": "ACK : 请求原文 2/3 响应添加[0]"
+  },
+  {
+    "key": 2,
+    "value": "ACK : 请求原文 2/3 响应添加[1]"
+  },
+  {
+    "key": 2,
+    "value": "ACK : 请求原文 2/3 响应添加[2]"
+  },
+  {
+    "key": 2,
+    "value": "ACK : 请求原文 2/3 响应添加[3]"
+  },
+  {
+    "key": 3,
+    "value": "ACK : 请求原文 3/3 响应添加[0]"
+  }
+]
+```
+
+## 工具类
+
+### 支持 grpc reflection
+
+1. server 端引入依赖
+
+```xml
+
+<dependency>
+  <groupId>io.grpc</groupId>
+  <artifactId>grpc-services</artifactId>
+</dependency>
+```
+
+2. server 启动时添加 `ProtoReflectionService`
+
+> https://github.com/grpc/grpc-java/blob/master/documentation/server-reflection-tutorial.md#enable-server-reflection
+
+```java
+grpcServer=ServerBuilder.forPort(port)
+    .addService(new SimpleImpl())
+    .addService(ProtoReflectionService.newInstance())
+    .build().start();
+    log.info("Server started, listening on "+port);
+```
+
+### grpcui
+
+1. 安装
+
+```shell
+go install github.com/fullstorydev/grpcui/cmd/grpcui@latest
+```
+
+2. 使用
+
+```shell
+grpcui -plaintext localhost:50051
+```
+
+### grpcox
+1. 安装
+```shell
+git clone git@github.com:gusaul/grpcox.git
+make start
+```
+

@@ -17,6 +17,8 @@ long-lived streaming application.
 
 gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一书](https://book.douban.com/subject/34796013/)：
 
+[java-grpc-examples](./java-grpc-example/README.MD)
+
 1. 简单RPC(Simple RPC)：最简单的，也是最常用的 gRPC 通信模式，简单来说就是一请求一应答
    ![image](https://user-images.githubusercontent.com/1940588/158950733-a8bb3f1a-9a8f-4b94-9d81-146157207da6.png)
 2. 服务端流RPC(Server-streaming RPC)：一请求，多应答
