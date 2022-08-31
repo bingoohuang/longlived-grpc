@@ -16,6 +16,7 @@
       <artifactId>lib</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <!--grpc reflections-->
     <dependency>
       <groupId>io.grpc</groupId>
       <artifactId>grpc-services</artifactId>
@@ -23,7 +24,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <optional>true</optional>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>

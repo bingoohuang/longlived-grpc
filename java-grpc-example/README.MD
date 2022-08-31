@@ -2,6 +2,60 @@
 
 ## 代码生成
 
+### 环境准备
+
+下载插件
+
+- https://repo.maven.apache.org/maven2/com/google/protobuf/protoc/3.21.1/
+
+- https://repo.maven.apache.org/maven2/io/grpc/protoc-gen-grpc-java/1.49.0/
+
+  1. protoc
+      1. 创建 pom.xml
+
+         ```xml
+         <?xml version="1.0" encoding="UTF-8"?>
+         <project xmlns="http://maven.apache.org/POM/4.0.0"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+             <modelVersion>4.0.0</modelVersion>
+          
+             <groupId>com.google.protobuf</groupId>
+             <artifactId>protoc</artifactId>
+             <version>3.21.1</version>
+         </project>
+         ```
+
+     2. mvn install
+
+        ```shell
+        mvn install:install-file -DgroupId=com.google.protobuf -DartifactId=protoc -Dversion=3.21.1 -Dclassifier=osx-x86_64 -Dpackaging=exe -Dfile=./protoc-3.21.1-osx-x86_64.exe
+        ```
+     
+  1. protoc-gen-grpc-java
+      1. 创建 pom.xml
+         ```xml
+             ```xml
+             <?xml version="1.0" encoding="UTF-8"?>
+             <project xmlns="http://maven.apache.org/POM/4.0.0"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+               <modelVersion>4.0.0</modelVersion>
+             
+               <groupId>io.grpc</groupId>
+               <artifactId>protoc-gen-grpc-java</artifactId>
+               <version>1.49.0</version>
+             </project>
+         ```
+      
+      3. mvn install
+      
+         ```she
+         mvn install:install-file -DgroupId=io.grpc -DartifactId=protoc-gen-grpc-java -Dversion=1.49.0 -Dclassifier=osx-x86_64 -Dpackaging=exe -Dfile=./protoc-gen-grpc-java-1.49.0-osx-x86_64.exe
+         ```
+
+### 生成
+
 1. 在 `src/main/proto` 下创建 `xxxx.proto` 定义
 2. 执行 `cd ./lib && mvn clean && mvn protobuf:compile && mvn protobuf:compile-custom`
 3. target 目录下生成了 Java 代码
@@ -149,8 +203,8 @@ gurl :8080/client/streamingBiDirectional -pb
 ```xml
 
 <dependency>
-  <groupId>io.grpc</groupId>
-  <artifactId>grpc-services</artifactId>
+    <groupId>io.grpc</groupId>
+    <artifactId>grpc-services</artifactId>
 </dependency>
 ```
 
@@ -181,7 +235,9 @@ grpcui -plaintext localhost:50051
 ```
 
 ### grpcox
+
 1. 安装
+
 ```shell
 git clone git@github.com:gusaul/grpcox.git
 make start

@@ -44,7 +44,6 @@ public class SimpleClient {
 
   private SimpleServiceStub stub;
   private SimpleServiceBlockingStub blockingStub;
-  private SimpleServiceFutureStub futureStub;
 
   @PostConstruct
   public void init() {
@@ -63,7 +62,6 @@ public class SimpleClient {
         .build();
     blockingStub = SimpleServiceGrpc.newBlockingStub(channel);
     stub = SimpleServiceGrpc.newStub(channel);
-    futureStub = SimpleServiceGrpc.newFutureStub(channel);
 
   }
 
