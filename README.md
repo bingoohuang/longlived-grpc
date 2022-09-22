@@ -427,3 +427,4 @@ Like Postman, but for gRPC: web based GUI client for gRPC Development Testing
 ## resources
 
 1. [ptg 💥Performance testing tool (Go), It is also a GUI gRPC client.](https://github.com/crossoverJie/ptg)
+1. [BloomRPC](https://github.com/bloomrpc/bloomrpc), electron GUI Client for RPC services，只能导入 protobuf .proto 定义文件进行调用，没有反射功能
