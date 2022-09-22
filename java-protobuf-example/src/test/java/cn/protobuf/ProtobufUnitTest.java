@@ -4,6 +4,7 @@ package cn.protobuf;
 import org.junit.After;
 import org.junit.Test;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class ProtobufUnitTest {
         int id = new Random().nextInt();
         String name = "Michael Program";
         String number = "01234567890";
-        AddressBookProtos.Person person =
+        AddressBookProtos.Person p =
                 AddressBookProtos.Person.newBuilder()
                         .setId(id)
                         .setName(name)
@@ -36,10 +37,10 @@ public class ProtobufUnitTest {
                         .addNumbers(number)
                         .build();
         //then
-        assertEquals(person.getEmail(), email);
-        assertEquals(person.getId(), id);
-        assertEquals(person.getName(), name);
-        assertEquals(person.getNumbers(0), number);
+        assertEquals(p.getEmail(), email);
+        assertEquals(p.getId(), id);
+        assertEquals(p.getName(), name);
+        assertEquals(p.getNumbers(0), number);
     }
 
 
@@ -47,10 +48,11 @@ public class ProtobufUnitTest {
     public void givenAddressBookWithOnePerson_whenSaveAsAFile_shouldLoadFromFileToJavaClass() throws IOException {
         //given
         String email = "j@baeldung.com";
-        int id = new Random().nextInt();
+//        int id = new Random().nextInt();
+        int id = 1;
         String name = "Michael Program";
         String number = "01234567890";
-        AddressBookProtos.Person person =
+        AddressBookProtos.Person p =
                 AddressBookProtos.Person.newBuilder()
                         .setId(id)
                         .setName(name)
@@ -59,23 +61,27 @@ public class ProtobufUnitTest {
                         .build();
 
         //when
-        AddressBookProtos.AddressBook addressBook = AddressBookProtos.AddressBook.newBuilder().addPeople(person).build();
+        AddressBookProtos.AddressBook b0 = AddressBookProtos.AddressBook.newBuilder().addPeople(p).build();
         FileOutputStream fos = new FileOutputStream(filePath);
-        addressBook.writeTo(fos);
+        b0.writeTo(fos);
         fos.close();
 
-        addressBook.toByteArray();
+        byte[] data = b0.toByteArray();
+        String b64 = DatatypeConverter.printBase64Binary(data);
+        System.out.println(b64);
+
+        data = DatatypeConverter.parseBase64Binary("CjAKD01pY2hhZWwgUHJvZ3JhbRABGg5qQGJhZWxkdW5nLmNvbSILMDEyMzQ1Njc4OTA=");
+        AddressBookProtos.AddressBook b1 = AddressBookProtos.AddressBook.parseFrom(data);
+        assertEquals(b0, b1);
 
         //then
         FileInputStream fis = new FileInputStream(filePath);
-        AddressBookProtos.AddressBook deserialized =
-                AddressBookProtos.AddressBook.newBuilder().mergeFrom(fis).build();
+        AddressBookProtos.AddressBook b2 = AddressBookProtos.AddressBook.newBuilder().mergeFrom(fis).build();
         fis.close();
-        assertEquals(deserialized.getPeople(0).getEmail(), email);
-        assertEquals(deserialized.getPeople(0).getId(), id);
-        assertEquals(deserialized.getPeople(0).getName(), name);
-        assertEquals(deserialized.getPeople(0).getNumbers(0), number);
-
-
+        p = b2.getPeople(0);
+        assertEquals(p.getEmail(), email);
+        assertEquals(p.getId(), id);
+        assertEquals(p.getName(), name);
+        assertEquals(p.getNumbers(0), number);
     }
 }
