@@ -7,11 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/peer"
-
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/constraints"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/peer"
 )
 
 func IsEnvEnabled(name string) bool {

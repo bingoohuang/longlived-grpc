@@ -12,18 +12,14 @@ import (
 	"time"
 
 	longlivedgrpc "github.com/bingoohuang/longlivedgprc"
-
 	"github.com/bingoohuang/longlivedgprc/protos"
 	_ "github.com/bingoohuang/longlivedgprc/resolver"
-
-	"google.golang.org/grpc/peer"
-
 	"github.com/gin-gonic/gin"
 	"github.com/segmentio/ksuid"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/balancer/roundrobin"
 	"google.golang.org/grpc/credentials/insecure"
-
-	"google.golang.org/grpc"
+	"google.golang.org/grpc/peer"
 )
 
 type H map[string]any
