@@ -39,7 +39,20 @@ gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一�
 | HTTP 1.1                       | HTTP 2.0         |
 | Unary (request response model) | Streaming        |
 | Client -> Server               | Bi Directional   |
-| GET/POST/PUT/DELETE ...        | Free Degisn      |
+| GET/POST/PUT/DELETE ...        | Free Design      |
+
+[A detailed comparison of REST and gRPC](https://kreya.app/blog/rest-vs-grpc/)
+
+|        Topic        |             REST              |                                 gRPC                                  |
+|---------------------|-------------------------------|-----------------------------------------------------------------------|
+|   Standardization   |          No standard          |                             Well defined                              |
+|      Paradigm       |        Resource based         |                                  RPC                                  |
+|    Service modes    |          Only unary           | Unary, client streaming, server streaming and bidirectional streaming |
+|    Requirements     | Any HTTP version, JSON parser |               HTTP/2, gRPC implementation for language                |
+|     API design      |          Code first           |                             Design first                              |
+| Default data format |             JSON              |                               Protobuf                                |
+| Web browser support |            Native             |                       gRPC web, via workarounds                       |
+|        Tools        |    More established tools     |     Language support varies, some with excellent implementations      |
 
 ## HTTP 2.0 (h2) features
 
