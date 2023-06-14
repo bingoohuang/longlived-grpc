@@ -41,6 +41,10 @@ gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一�
 | Client -> Server               | Bi Directional   |
 | GET/POST/PUT/DELETE ...        | Free Design      |
 
+![img.png](_assets/rpc_vs_restful.png)
+
+图来自[如何在RPC和RESTful之间做选择？](https://mp.weixin.qq.com/s/CLujYyU_KfHAbKjXdaiorw)
+
 [A detailed comparison of REST and gRPC](https://kreya.app/blog/rest-vs-grpc/)
 
 |        Topic        |             REST              |                                 gRPC                                  |
