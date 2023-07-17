@@ -3,15 +3,31 @@
 This repository fork from [this repo](https://github.com/omri86/longlived-grpc) holds a minimalistic example of a gRPC
 long-lived streaming application.
 
+## 先简单介绍一下 Protocol Buffers（protobuf），它是Google开发的一种数据序列化协议（与XML、JSON类似）。它具有很多优点，但也有一些需要注意的缺点：
+
+优点：
+
+1. 效率高：Protobuf以二进制格式存储数据，比如XML和JSON等文本格式更紧凑，也更快。序列化和反序列化的速度也很快。
+2. 跨语言支持：Protobuf支持多种编程语言，包括C++、Java、Python等。
+3. 清晰的结构定义：使用protobuf，可以清晰地定义数据的结构，这有助于维护和理解。
+4. 向后兼容性：你可以添加或者删除字段，而不会破坏老的应用程序。这对于长期的项目来说是非常有价值的。
+
+缺点：
+
+1. 不直观：由于protobuf是二进制格式，人不能直接阅读和修改它。这对于调试和测试来说可能会有些困难。
+2. 缺乏一些数据类型：例如没有内建的日期、时间类型，对于这些类型的数据，需要手动转换成可以支持的类型，如string或int。
+3. 需要额外的编译步骤：你需要先定义数据结构，然后使用protobuf的编译器将其编译成目标语言的代码，这是一个额外的步骤，可能会影响开发流程。
+
 ## Resources
 
-1. [grpc-go, a gRPC client-side load balancing example](https://github.com/grpc/grpc-go)
-2. [gRPC客户端的那些事儿](https://tonybai.com/2021/09/17/those-things-about-grpc-client/)
-3. [blog grpc-long-lived-streaming](https://dev.bitolog.com/grpc-long-lived-streaming/)
-4. [gRPC is easy to misconfigure](https://www.evanjones.ca/grpc-is-tricky.html)
+1. [配图清新的Protobuf 编码&避坑指南](https://mp.weixin.qq.com/s/7zkuWumtvJs3cLtj_JGCNw)
+2. [grpc-go, a gRPC client-side load balancing example](https://github.com/grpc/grpc-go)
+3. [gRPC客户端的那些事儿](https://tonybai.com/2021/09/17/those-things-about-grpc-client/)
+4. [blog grpc-long-lived-streaming](https://dev.bitolog.com/grpc-long-lived-streaming/)
+5. [gRPC is easy to misconfigure](https://www.evanjones.ca/grpc-is-tricky.html)
     - Client keepalive is dangerous: do not use it
     - Servers cannot return errors larger than 7 kiB
-5. [gRPC-中使用-Channel](https://helloworlde.github.io/2021/01/04/gRPC-中使用-Channelz/)
+6. [gRPC-中使用-Channel](https://helloworlde.github.io/2021/01/04/gRPC-中使用-Channelz/)
 
 ### gRPC支持四种通信模式
 
@@ -47,16 +63,16 @@ gRPC支持四种通信模式，它们是: 截自 [《gRPC: Up and Running》一�
 
 [A detailed comparison of REST and gRPC](https://kreya.app/blog/rest-vs-grpc/)
 
-|        Topic        |             REST              |                                 gRPC                                  |
+| Topic               | REST                          | gRPC                                                                  |
 |---------------------|-------------------------------|-----------------------------------------------------------------------|
-|   Standardization   |          No standard          |                             Well defined                              |
-|      Paradigm       |        Resource based         |                                  RPC                                  |
-|    Service modes    |          Only unary           | Unary, client streaming, server streaming and bidirectional streaming |
-|    Requirements     | Any HTTP version, JSON parser |               HTTP/2, gRPC implementation for language                |
-|     API design      |          Code first           |                             Design first                              |
-| Default data format |             JSON              |                               Protobuf                                |
-| Web browser support |            Native             |                       gRPC web, via workarounds                       |
-|        Tools        |    More established tools     |     Language support varies, some with excellent implementations      |
+| Standardization     | No standard                   | Well defined                                                          |
+| Paradigm            | Resource based                | RPC                                                                   |
+| Service modes       | Only unary                    | Unary, client streaming, server streaming and bidirectional streaming |
+| Requirements        | Any HTTP version, JSON parser | HTTP/2, gRPC implementation for language                              |
+| API design          | Code first                    | Design first                                                          |
+| Default data format | JSON                          | Protobuf                                                              |
+| Web browser support | Native                        | gRPC web, via workarounds                                             |
+| Tools               | More established tools        | Language support varies, some with excellent implementations          |
 
 ## HTTP 2.0 (h2) features
 
@@ -430,6 +446,7 @@ $ grpcurl -plaintext localhost:7070 grpc.channelz.v1.Channelz/GetTopChannels
   "end": true
 }
 ```
+
 ### grpcox
 
 [gusaul/grpcox](https://github.com/gusaul/grpcox)
@@ -447,5 +464,6 @@ Like Postman, but for gRPC: web based GUI client for gRPC Development Testing
 ## resources
 
 1. [ptg 💥Performance testing tool (Go), It is also a GUI gRPC client.](https://github.com/crossoverJie/ptg)
-2. [BloomRPC](https://github.com/bloomrpc/bloomrpc), electron GUI Client for RPC services，只能导入 protobuf .proto 定义文件进行调用，没有反射功能
+2. [BloomRPC](https://github.com/bloomrpc/bloomrpc), electron GUI Client for RPC services，只能导入 protobuf .proto
+   定义文件进行调用，没有反射功能
 3. Cross platform gRPC GUI client [Forest33/warthog](https://github.com/Forest33/warthog)
