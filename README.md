@@ -3,7 +3,9 @@
 This repository fork from [this repo](https://github.com/omri86/longlived-grpc) holds a minimalistic example of a gRPC
 long-lived streaming application.
 
-## 先简单介绍一下 Protocol Buffers（protobuf），它是Google开发的一种数据序列化协议（与XML、JSON类似）。它具有很多优点，但也有一些需要注意的缺点：
+## 先简单介绍一下 pb, Protocol Buffers（protobuf）
+
+它是Google开发的一种数据序列化协议（与XML、JSON类似）。它具有很多优点，但也有一些需要注意的缺点：
 
 优点：
 
