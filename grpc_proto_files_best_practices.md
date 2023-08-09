@@ -2,7 +2,8 @@
 
 from [blog](https://sonny-alvesdias.medium.com/grpc-proto-files-best-practices-2d1c6169219c)
 
-This article is a mash-up of different sources cited in references and Pixelmatic guidelines aimed to serve as coding and style guides for proto files in the context of gRPC services definitions.
+This article is a mash-up of different sources cited in references and Pixelmatic guidelines aimed to serve as coding
+and style guides for proto files in the context of gRPC services definitions.
 
 ## Coding and style guides
 
@@ -24,13 +25,13 @@ Files should be `named lower_snake_case.proto`
 All files should be ordered in the following manner:
 
 1. License header (if applicable)
-1. File overview
-1. Syntax
-1. Package
-1. Imports (sorted)
-1. File options
-1. Service (1 service per file)
-1. Messages (sorted in the same order of the RPCs and grouped under a comment// region $RPCNAME)
+2. File overview
+3. Syntax
+4. Package
+5. Imports (sorted)
+6. File options
+7. Service (1 service per file)
+8. Messages (sorted in the same order of the RPCs and grouped under a comment// region $RPCNAME)
 
 ```proto
 service Foo {
@@ -51,11 +52,13 @@ Note: // region comments are collapsible in Visual Code.
 
 ## Packages
 
-Package names should be in lowercase. Package names should have unique names based on the project name and possibly based on the path of the file containing the protocol buffer type definitions.
+Package names should be in lowercase. Package names should have unique names based on the project name and possibly
+based on the path of the file containing the protocol buffer type definitions.
 
 ## Message and field names
 
-Use `CamelCase` (with an initial capital) for message names — for example, SongServerRequest. Use underscore_separated_names for field names (including oneof field and extension names) – for example, `song_name`.
+Use `CamelCase` (with an initial capital) for message names — for example, SongServerRequest. Use
+underscore_separated_names for field names (including oneof field and extension names) – for example, `song_name`.
 
 ```proto
 message SongServerRequest {
@@ -79,7 +82,8 @@ Java:
   public Builder setSongName(String v) { ... }
 ```
 
-If your field name contains a number, the number should appear after the letter instead of after the underscore. For example, use `song_name1` instead of `song_name_1`
+If your field name contains a number, the number should appear after the letter instead of after the underscore. For
+example, use `song_name1` instead of `song_name_1`
 
 ## Optional fields
 
@@ -91,7 +95,8 @@ Consider the following proto3 message which defines the field bar:
 }
 ```
 
-With this definition, it is impossible to check whether `bar` has been set to 0 or if no value has been set since the default value of `int32` fields is `0`.
+With this definition, it is impossible to check whether `bar` has been set to 0 or if no value has been set since the
+default value of `int32` fields is `0`.
 
 To allow you to make the difference, use:
 
@@ -115,7 +120,9 @@ repeated string keys = 1;
 
 ## Oneof
 
-Oneof is a wonderful example where a protobuf language feature helps to make gRPC APIs more intuitive. As an example, imagine we have a service method where users are able to change their profile picture, either from an URL or by uploading their own (small) image. Instead of doing this
+Oneof is a wonderful example where a protobuf language feature helps to make gRPC APIs more intuitive. As an example,
+imagine we have a service method where users are able to change their profile picture, either from an URL or by
+uploading their own (small) image. Instead of doing this
 
 ```proto
 // Either set image_url or image_data. Setting both will result in an error.
@@ -136,11 +143,14 @@ message ChangeProfilePictureRequest {
 }
 ```
 
-Not only is that much clearer for API consumers, but it is also easier to check which field has been set in the generated code. Keep in mind that oneof also allows that none of the fields has been set, meaning there is no need to introduce a separate none field if the oneof should be optional.
+Not only is that much clearer for API consumers, but it is also easier to check which field has been set in the
+generated code. Keep in mind that oneof also allows that none of the fields has been set, meaning there is no need to
+introduce a separate none field if the oneof should be optional.
 
 ## Flexible data
 
-If you do not know in advance the nature of the data you are going to receive from your consumer, we suggest you use the well know type Struct. For example:
+If you do not know in advance the nature of the data you are going to receive from your consumer, we suggest you use the
+well know type Struct. For example:
 
 ```proto
 message StructTest {
@@ -160,12 +170,17 @@ enum FooBar {
 }
 ```
 
-- Each enum value should end with a semicolon, not a comma. Prefer prefixing enum values instead of surrounding them in an enclosing message. The zero value enum should have the suffix `UNSPECIFIED`.
-- Note that names of enum entries must be unique in the whole package. Defining a second completely unrelated enum with an entry existing in the first will result in an error message because of how enums in C and C++ are implemented. To avoid this, prefix the enum entries with the enum name. Some code generators (ex. for C#) will remove these prefixes automatically so that the resulting code looks “clean” again.
+- Each enum value should end with a semicolon, not a comma. Prefer prefixing enum values instead of surrounding them in
+  an enclosing message. The zero value enum should have the suffix `UNSPECIFIED`.
+- Note that names of enum entries must be unique in the whole package. Defining a second completely unrelated enum with
+  an entry existing in the first will result in an error message because of how enums in C and C++ are implemented. To
+  avoid this, prefix the enum entries with the enum name. Some code generators (ex. for C#) will remove these prefixes
+  automatically so that the resulting code looks “clean” again.
 
 ## Services
 
-If your `.proto` defines an RPC service, you should use `CamelCase` (with an initial capital) for both the service name and any RPC method names:
+If your `.proto` defines an RPC service, you should use `CamelCase` (with an initial capital) for both the service name
+and any RPC method names:
 
 ```proto
 service FooService {
@@ -176,7 +191,11 @@ service FooService {
 
 ## Separate request and response messages
 
-We recommend that you create a separate message for each request and response. Name them `{MethodName}Request` and `{MethodName}Reponse`. This allows you to modify request and response messages for a single service method without introducing accidental changes to other methods. It is tempting to re-use messages and simply ignore fields that aren't needed. With time, this will result in a mess, since it isn't obvious what the API expects. Exceptions to this rule are usually made when returning a single, well-defined entity or when returning an empty message.
+We recommend that you create a separate message for each request and response. Name them `{MethodName}Request`
+and `{MethodName}Reponse`. This allows you to modify request and response messages for a single service method without
+introducing accidental changes to other methods. It is tempting to re-use messages and simply ignore fields that aren't
+needed. With time, this will result in a mess, since it isn't obvious what the API expects. Exceptions to this rule are
+usually made when returning a single, well-defined entity or when returning an empty message.
 
 ```proto
 service BookService {
@@ -190,7 +209,8 @@ service BookService {
 
 ## Use the error system
 
-Do not return a simple confirmation to an endpoint that does not need to return any other data, use `google.protobuf.Empty` and trigger an error if needed.
+Do not return a simple confirmation to an endpoint that does not need to return any other data,
+use `google.protobuf.Empty` and trigger an error if needed.
 
 ```proto
 // Don't
@@ -216,13 +236,16 @@ Use and abuse of the well-known types:
 
 Examples:
 
-- The empty message is already defined as google.protobuf.Empty, so it doesn't make sense to define yet another empty message.
-- Don’t try to redefine timestamp, there’s an [existing type for it](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#timestamp)
+- The empty message is already defined as google.protobuf.Empty, so it doesn't make sense to define yet another empty
+  message.
+- Don’t try to redefine timestamp, there’s
+  an [existing type for it](https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#timestamp)
 - …
 
 ## Don’t have one field in a struct influence the meaning of another
 
-Protocol buffer messages usually have multiple fields. These fields should always be independent of each other — you shouldn’t have one field influence the semantic meaning of another.
+Protocol buffer messages usually have multiple fields. These fields should always be independent of each other — you
+shouldn’t have one field influence the semantic meaning of another.
 
 ```proto
 // don't do this!
@@ -232,7 +255,8 @@ message Foo {
                            // false means that it is updated time
 ```
 
-This causes confusion — the client now needs to have special logic to know how to interpret one field based on another. Instead, use multiple fields, or use the protobuf “oneof” feature.
+This causes confusion — the client now needs to have special logic to know how to interpret one field based on another.
+Instead, use multiple fields, or use the protobuf “oneof” feature.
 
 ```proto
 // better, but still not ideal because the fields are mutually
@@ -253,11 +277,14 @@ message Foo {
 
 ## Linting
 
-We use protolint to lint the proto files. Please download and install [protolint](https://github.com/yoheimuta/protolint/releases).
+We use protolint to lint the proto files. Please download and
+install [protolint](https://github.com/yoheimuta/protolint/releases).
 
 ### Git pre-commit hook
 
-You can also enforce protolint to execute automatically before committing code using [pre-commit](https://pre-commit.com/). Install pre-commit, add a file `.pre-commit-config.yaml`, and add this content to it:
+You can also enforce protolint to execute automatically before committing code
+using [pre-commit](https://pre-commit.com/). Install pre-commit, add a file `.pre-commit-config.yaml`, and add this
+content to it:
 
 ```yaml
 repos:
@@ -272,8 +299,10 @@ Then run: `pre-commit install` in the repo.
 ## Extra recommendations
 
 - Use CI to automatically double-check if your proto files still compile without error/warnings.
-- Avoid large messages. gRPC is not designed for that. [Details](https://kreya.app/blog/grpc-best-practices/#large-messages)
-- Reuse channels. Creating a gRPC channel is a costly process, as it creates a new HTTP/2 connection. [Details](https://kreya.app/blog/grpc-best-practices/#reuse-channels)
+- Avoid large messages. gRPC is not designed for
+  that. [Details](https://kreya.app/blog/grpc-best-practices/#large-messages)
+- Reuse channels. Creating a gRPC channel is a costly process, as it creates a new HTTP/2
+  connection. [Details](https://kreya.app/blog/grpc-best-practices/#reuse-channels)
 
 ## References
 
