@@ -170,12 +170,17 @@ func startServer(address string) *Server {
 	server := &Server{ctx: ctx, cancelF: cancelF, Address: address, Server: grpcServer, ID: ksuid.New().String()}
 
 	protos.RegisterLonglivedServer(grpcServer, server)
-	if longlivedgrpc.IsEnvEnabled("GRPC_REFLECTION") {
+	grpcReflection := longlivedgrpc.IsEnvEnabled("GRPC_REFLECTION")
+	if grpcReflection {
 		reflection.Register(grpcServer)
 	}
-	if longlivedgrpc.IsEnvEnabled("GRPC_CHANNELZ") {
+
+	channelz := longlivedgrpc.IsEnvEnabled("GRPC_CHANNELZ")
+	if channelz {
 		service.RegisterChannelzServiceToServer(server)
 	}
+
+	log.Printf("Start gRPC server address=%s, $GRPC_REFLECTION=%t, $GRPC_CHANNELZ=%t", address, grpcReflection, channelz)
 
 	server.Start()
 	return server
@@ -188,8 +193,9 @@ type subscribe struct {
 
 // Subscribe handles a subscribe request from a client
 func (s *Server) Subscribe(request *protos.Request, stream protos.Longlived_SubscribeServer) error {
-	peerAddr := longlivedgrpc.GetPeerAddr(stream.Context())
-	realAddr := longlivedgrpc.GetRealAddr(stream.Context())
+	ctx := stream.Context()
+	peerAddr := longlivedgrpc.GetPeerAddr(ctx)
+	realAddr := longlivedgrpc.GetRealAddr(ctx)
 	log.Printf("Subscribed, serverAddr: %q, peerAddr: %q, realAddr: %q", s.Address, peerAddr, realAddr)
 
 	// Handle subscribe request
@@ -205,7 +211,7 @@ func (s *Server) Subscribe(request *protos.Request, stream protos.Longlived_Subs
 		case <-fin:
 			log.Printf("Closing stream for client ID: %s", request.Id)
 			return nil
-		case <-stream.Context().Done():
+		case <-ctx.Done():
 			log.Printf("Client ID %s has disconnected", request.Id)
 			return nil
 		}

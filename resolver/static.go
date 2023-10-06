@@ -21,8 +21,8 @@ func (sb *StaticBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 	// use info in target to access naming service
 	// parse the target.endpoint
 	// resolver.Target{Scheme:"static", Authority:"", Endpoint:"localhost:5051,localhost:5052,localhost:5053"}
-	endpoints := strings.Split(target.Endpoint, ",")
-	log.Printf("static resolver: %s", target.Endpoint)
+	endpoints := strings.Split(target.Endpoint(), ",")
+	log.Printf("static resolver: %v", endpoints)
 	for i, endpoint := range endpoints {
 		if endpoint == ":" {
 			endpoints[i] = "localhost:7070"

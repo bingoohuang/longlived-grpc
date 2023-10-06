@@ -320,6 +320,53 @@ Security:
 
 ## grpc test tools
 
+### Evans
+
+[Evans](https://github.com/ktr0731/evans): more expressive universal gRPC client
+
+known from [Github Repo](https://github.com/Djsmk123/wtf-is-grpc)
+blog [Wtf is Grpc? Part 1: Authentication and Authorization in Flutter and Golang.](https://dev.to/djsmk123/wtf-is-grpc-part-1-authentication-and-authorization-in-flutter-and-golang-37jj),
+
+```shell
+$ evans --host localhost --port 2008 -r repl                                                                 
+
+  ______
+ |  ____|
+ | |__    __   __   __ _   _ __    ___
+ |  __|   \ \ / /  / _. | | '_ \  / __|
+ | |____   \ V /  | (_| | | | | | \__ \
+ |______|   \_/    \__,_| |_| |_| |___/
+
+ more expressive universal gRPC client
+
+
+SimpleService@localhost:2008> show service
++---------------+------------------------+---------------+----------------+
+|    SERVICE    |          RPC           | REQUEST TYPE  | RESPONSE TYPE  |
++---------------+------------------------+---------------+----------------+
+| SimpleService | RPCRequest             | SimpleRequest | SimpleResponse |
+| SimpleService | ServerStreaming        | SimpleRequest | SimpleResponse |
+| SimpleService | ClientStreaming        | SimpleRequest | SimpleResponse |
+| SimpleService | StreamingBiDirectional | SimpleRequest | SimpleResponse |
++---------------+------------------------+---------------+----------------+
+
+SimpleService@localhost:2008> call 
+command call: argument required
+
+SimpleService@localhost:2008> call RPCRequest
+request_need (TYPE_STRING) => hello
+request_id (TYPE_UINT64) => 123
+{
+  "response": "Here is your response",
+  "responseId": "18446744073709551615"
+}
+
+SimpleService@localhost:2008> exit
+Good Bye :)
+$ 
+
+```
+
 ### grpcurl
 
 [fullstorydev/grpcurl](https://github.com/fullstorydev/grpcurl)
@@ -469,7 +516,6 @@ Like Postman, but for gRPC: web based GUI client for gRPC Development Testing
 2. [BloomRPC](https://github.com/bloomrpc/bloomrpc), electron GUI Client for RPC services，只能导入 protobuf .proto
    定义文件进行调用，没有反射功能
 3. Cross platform gRPC GUI client [Forest33/warthog](https://github.com/Forest33/warthog)
-
 
 ## grpc
 

@@ -89,8 +89,8 @@ func makeBidirectional(c sgRPC.SimpleServiceClient) {
 	var id uint64 = math.MaxUint64
 
 	// here the communication sequence is completely depends on how the server is implemented.
-	// if the server is implemetend to give response to all the response at the end or
-	// one after another it all compeletely depends on the implementation
+	// if the server is implemented to give response to all the response at the end or
+	// one after another it all completely depends on the implementation
 	for i := uint64(0); i < 10; i++ {
 		req := fmt.Sprintf("My request %d", i)
 		r := &sgRPC.SimpleRequest{RequestNeed: req, RequestId: id - i}

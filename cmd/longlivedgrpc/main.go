@@ -9,7 +9,7 @@ import (
 
 	"github.com/bingoohuang/gg/pkg/ctl"
 	"github.com/bingoohuang/gg/pkg/fla9"
-	"github.com/bingoohuang/golog"
+	_ "github.com/bingoohuang/golog/pkg/autoload"
 	"github.com/bingoohuang/golog/pkg/ginlogrus"
 	"github.com/gin-gonic/gin"
 )
@@ -17,7 +17,6 @@ import (
 var stoppers Stoppers
 
 func main() {
-	pVerbose := fla9.Bool("verbose,v", false, "Initialize a ctl")
 	pInit := fla9.Bool("init", false, "Initialize a ctl")
 	pVersion := fla9.Bool("version", false, "Print version")
 	pAddr := fla9.String("addr,a", ":7070", "listen address for the Grpc server")
@@ -28,23 +27,21 @@ func main() {
 	ctl.Config{Initing: *pInit, PrintVersion: *pVersion}.ProcessInit()
 
 	gin.SetMode(gin.ReleaseMode)
-	var fns []golog.SetupOptionFn
-	if *pVerbose {
-		fns = append(fns, golog.Spec("stdout"))
-	}
-	golog.Setup(fns...)
 
 	gr := gin.New()
 	gr.Use(ginlogrus.Logger(nil, true), gin.Recovery())
 
-	if *pMode == "both" || *pMode == "server" {
+	switch *pMode {
+	case "both", "server":
 		addrs := strings.Split(*pAddr, ",")
 		for _, addr := range addrs {
 			stoppers.Add(startServer(addr))
 		}
 		gr.GET("/server/:action", serverRestHandle(addrs))
 	}
-	if *pMode == "both" || *pMode == "client" {
+
+	switch *pMode {
+	case "both", "client":
 		gr.GET("/client/:action", clientRestHandle(*pAddr))
 	}
 
