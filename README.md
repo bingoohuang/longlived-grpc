@@ -510,6 +510,12 @@ Like Postman, but for gRPC: web based GUI client for gRPC Development Testing
 
 ![img.png](_assets/wombat.png)
 
+### Chiko - TUI gRPC client
+
+[chiko](https://github.com/felangga/chiko)
+
+![](snapshots/2024-07-17-11-10-12.png)
+
 ## resources
 
 1. [ptg 💥Performance testing tool (Go), It is also a GUI gRPC client.](https://github.com/crossoverJie/ptg)
